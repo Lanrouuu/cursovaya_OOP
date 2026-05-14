@@ -1,0 +1,76 @@
+<UserControl x:Class="Cursovaya.Views.AdvertisementsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:userControls="clr-namespace:Cursovaya.UserControls">
+    <Grid Margin="32,24,32,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="{DynamicResource Advertisements}"
+                           Style="{StaticResource SectionTitleStyle}"
+                           Margin="4,0,4,2"/>
+                <TextBlock Style="{StaticResource PageSubtitleStyle}" Margin="4,0,4,0">
+                    <Run Text="{DynamicResource ResultsFound}"/>
+                    <Run Text=" "/>
+                    <Run Text="{Binding Advertisements.Count, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="{DynamicResource AddAdvertisement}"
+                    Command="{Binding AddAdvertisementCommand}"
+                    Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    MinWidth="200"
+                    Padding="20,9"/>
+        </Grid>
+
+        <!-- Filters -->
+        <userControls:SearchFilterControl Grid.Row="1"/>
+
+        <!-- Advertisements list -->
+        <Grid Grid.Row="2">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="{DynamicResource DangerBrush}"
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
+                       Margin="4"/>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          BorderThickness="0">
+                <ItemsControl ItemsSource="{Binding Advertisements}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <userControls:AdvertisementCardControl
+                                Title="{Binding Title}"
+                                ShortDescription="{Binding ShortDescription}"
+                                Price="{Binding Price}"
+                                ImagePath="{Binding ImagePath}"
+                                City="{Binding City}"
+                                CategoryName="{Binding Category.Name}"
+                                SellerName="{Binding User.UserName}"
+                                CreatedAt="{Binding CreatedAt}"
+                                OpenCommand="{Binding DataContext.OpenDetailsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                OpenCommandParameter="{Binding}"
+                                EditCommand="{Binding DataContext.EditAdvertisementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                EditCommandParameter="{Binding}"
+                                DeleteCommand="{Binding DataContext.DeleteAdvertisementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                DeleteCommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

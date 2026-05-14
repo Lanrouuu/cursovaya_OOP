@@ -1,0 +1,124 @@
+<Window x:Class="Cursovaya.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="{DynamicResource AppTitle}"
+        Height="850"
+        Width="1380"
+        MinHeight="700"
+        MinWidth="1100"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header with glassmorphism effect -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource HeaderBrush}"
+                Effect="{StaticResource CardShadowEffect}">
+            <Grid Margin="16,0,20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo + Brand -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="38"
+                            Height="38"
+                            CornerRadius="10"
+                            Background="{DynamicResource AccentBrush}"
+                            Margin="0,0,12,0">
+                        <TextBlock Text="TA"
+                                   Foreground="{DynamicResource AccentTextBrush}"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource AppTitle}"
+                                   Foreground="{DynamicResource HeaderTextBrush}"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   LineHeight="22"/>
+                        <TextBlock Text="{DynamicResource AppSubtitle}"
+                                   Foreground="{DynamicResource HeaderMutedBrush}"
+                                   FontSize="11"
+                                   Margin="0,-2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Navigation -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Button Content="{DynamicResource NavAdvertisements}"
+                            Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateAdvertisementsCommand}"/>
+                    <Button Content="{DynamicResource NavLogin}"
+                            Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateLoginCommand}"/>
+                    <Button Content="{DynamicResource NavRegister}"
+                            Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateRegisterCommand}"/>
+                    <Button Content="{DynamicResource NavProfile}"
+                            Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateProfileCommand}"/>
+                    <Button Content="{DynamicResource NavAdmin}"
+                            Style="{StaticResource NavButtonStyle}"
+                            Command="{Binding NavigateAdminCommand}"/>
+                </StackPanel>
+
+                <!-- Right side controls -->
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Border Background="{DynamicResource HeaderPillBrush}"
+                            CornerRadius="8"
+                            Padding="12,5"
+                            Margin="0,0,8,0">
+                        <TextBlock Foreground="{DynamicResource HeaderTextBrush}" FontSize="13">
+                            <Run Text="{DynamicResource CurrentUser}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding CurrentUserName, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Border>
+                    <ComboBox ItemsSource="{Binding Themes}"
+                              SelectedItem="{Binding SelectedTheme}"
+                              Width="120"
+                              Style="{StaticResource HeaderComboBoxStyle}"
+                              ToolTip="{DynamicResource Theme}"/>
+                    <Button Content="{DynamicResource Undo}"
+                             Command="{Binding UndoCommand}"
+                             Style="{StaticResource HeaderButtonStyle}"/>
+                     <Button Content="{DynamicResource Redo}"
+                             Command="{Binding RedoCommand}"
+                             Style="{StaticResource HeaderButtonStyle}"/>
+                    <ComboBox ItemsSource="{Binding Languages}"
+                              SelectedItem="{Binding SelectedLanguage}"
+                              DisplayMemberPath="Title"
+                              Width="68"
+                              Style="{StaticResource HeaderComboBoxStyle}"
+                              ToolTip="{DynamicResource Language}"/>
+                    <Border Width="1" Background="#FFFFFF20" Height="24" Margin="4,0"/>
+                    <Button Content="{DynamicResource Logout}"
+                            Command="{Binding LogoutCommand}"
+                            Style="{StaticResource HeaderButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main content area -->
+        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+    </Grid>
+</Window>

@@ -1,0 +1,28 @@
+<UserControl x:Class="Cursovaya.Views.UsersManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,12">
+            <TextBox Width="240"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="{DynamicResource Search}"/>
+            <Button Content="{DynamicResource Block}" Command="{Binding BlockCommand}"/>
+            <Button Content="{DynamicResource Activate}" Command="{Binding UnblockCommand}"/>
+            <Button Content="{DynamicResource Apply}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding RefreshCommand}"/>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding Users}"
+                  SelectedItem="{Binding SelectedUser}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="{DynamicResource UserName}" Binding="{Binding UserName}" Width="2*"/>
+                <DataGridTextColumn Header="{DynamicResource Email}" Binding="{Binding Email}" Width="2*"/>
+                <DataGridTextColumn Header="{DynamicResource Phone}" Binding="{Binding PhoneNumber}" Width="*"/>
+                <DataGridTextColumn Header="Role" Binding="{Binding Role, Converter={StaticResource EnumToStringConverter}}" Width="*"/>
+                <DataGridCheckBoxColumn Header="Blocked" Binding="{Binding IsBlocked}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

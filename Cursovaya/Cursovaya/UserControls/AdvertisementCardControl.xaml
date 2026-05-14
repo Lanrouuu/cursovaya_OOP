@@ -1,0 +1,143 @@
+<UserControl x:Class="Cursovaya.UserControls.AdvertisementCardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:commands="clr-namespace:Cursovaya.Commands"
+             x:Name="Root"
+             MinWidth="540">
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static commands:CustomCommands.OpenAdvertisementCommand}"
+                        Executed="OpenAdvertisementCommand_Executed"/>
+    </UserControl.CommandBindings>
+
+    <Border Style="{StaticResource AdvertisementCardBorderStyle}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="180"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Image -->
+            <Border Width="176"
+                    Height="132"
+                    CornerRadius="10"
+                    Background="{DynamicResource HoverBrush}"
+                    ClipToBounds="True"
+                    HorizontalAlignment="Left"
+                    Cursor="Hand">
+                <Border.InputBindings>
+                    <MouseBinding Gesture="LeftClick"
+                                  Command="{x:Static commands:CustomCommands.OpenAdvertisementCommand}"
+                                  CommandTarget="{Binding ElementName=Root}"/>
+                </Border.InputBindings>
+                <Grid>
+                    <TextBlock Text="{DynamicResource Photo}"
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="13"/>
+                    <Image Source="{Binding ImagePath, ElementName=Root, Converter={StaticResource ImagePathConverter}}"
+                           Stretch="UniformToFill"/>
+                </Grid>
+            </Border>
+
+            <!-- Content -->
+            <StackPanel Grid.Column="1" Margin="4,0,14,0">
+                <TextBlock Text="{Binding Title, ElementName=Root}"
+                           Style="{StaticResource CardTitleStyle}"
+                           Margin="0,0,0,6"
+                           Cursor="Hand"
+                           Foreground="{DynamicResource TextBrush}">
+                    <TextBlock.InputBindings>
+                        <MouseBinding Gesture="LeftClick"
+                                      Command="{x:Static commands:CustomCommands.OpenAdvertisementCommand}"
+                                      CommandTarget="{Binding ElementName=Root}"/>
+                    </TextBlock.InputBindings>
+                </TextBlock>
+
+                <TextBlock Text="{Binding ShortDescription, ElementName=Root}"
+                           Foreground="{DynamicResource MutedTextBrush}"
+                           FontSize="14"
+                           Margin="0,0,0,10"
+                           MaxHeight="40"
+                           LineHeight="20"/>
+
+                <WrapPanel>
+                    <Border Style="{StaticResource TagStyle}">
+                        <TextBlock Text="{Binding CategoryName, ElementName=Root}" FontSize="13"/>
+                    </Border>
+                    <Border Style="{StaticResource TagStyle}">
+                        <TextBlock>
+                            <Run Text="{DynamicResource Seller}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding SellerName, ElementName=Root}"/>
+                        </TextBlock>
+                    </Border>
+                    <Border Style="{StaticResource TagStyle}">
+                        <TextBlock>
+                            <Run Text="{Binding City, ElementName=Root}"/>
+                            <Run Text=" · "/>
+                            <Run Text="{Binding CreatedAt, ElementName=Root, StringFormat={}{0:dd.MM.yyyy}}"/>
+                        </TextBlock>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+
+            <!-- Actions -->
+            <StackPanel Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Stretch"
+                        Width="170">
+                <TextBlock Text="{Binding Price, ElementName=Root, StringFormat={}{0:N0} ₽}"
+                           Margin="0,0,0,10">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource PriceTextStyle}">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="FontSize" Value="22"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Price, ElementName=Root}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Text="{DynamicResource Free}"
+                           Margin="0,0,0,10">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource PriceTextStyle}">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="FontSize" Value="22"/>
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Price, ElementName=Root}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Button Content="{DynamicResource Details}"
+                        Style="{StaticResource SmallButtonStyle}"
+                        Command="{x:Static commands:CustomCommands.OpenAdvertisementCommand}"
+                        CommandTarget="{Binding ElementName=Root}"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,0,0,6"/>
+                <Button Content="{DynamicResource Edit}"
+                        Style="{StaticResource SmallSecondaryButtonStyle}"
+                        Command="{Binding EditCommand, ElementName=Root}"
+                        CommandParameter="{Binding EditCommandParameter, ElementName=Root}"
+                        Margin="0,0,0,6"/>
+                <Button Content="{DynamicResource Delete}"
+                        Style="{StaticResource DangerButtonStyle}"
+                        Command="{Binding DeleteCommand, ElementName=Root}"
+                        CommandParameter="{Binding DeleteCommandParameter, ElementName=Root}"
+                        MinHeight="30"
+                        Padding="12,5"
+                        FontSize="13"
+                        Margin="0"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

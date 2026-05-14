@@ -1,0 +1,177 @@
+using System;
+using Cursovaya.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace Cursovaya.Migrations
+{
+    [DbContext(typeof(AppDbContext))]
+    partial class AppDbContextModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.26")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Cursovaya.Models.Advertisement", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("CategoryId").HasColumnType("int");
+                b.Property<string>("City").IsRequired().HasMaxLength(80).HasColumnType("nvarchar(80)");
+                b.Property<int>("Condition").HasColumnType("int");
+                b.Property<DateTime>("CreatedAt").HasColumnType("datetime2");
+                b.Property<string>("FullDescription").IsRequired().HasMaxLength(2000).HasColumnType("nvarchar(2000)");
+                b.Property<string>("ImagePath").IsRequired().HasMaxLength(400).HasColumnType("nvarchar(400)");
+                b.Property<decimal>("Price").HasPrecision(18, 2).HasColumnType("decimal(18,2)");
+                b.Property<string>("SellerContactEmail").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
+                b.Property<string>("SellerContactPhone").IsRequired().HasMaxLength(30).HasColumnType("nvarchar(30)");
+                b.Property<string>("ShortDescription").IsRequired().HasMaxLength(250).HasColumnType("nvarchar(250)");
+                b.Property<int>("Status").HasColumnType("int");
+                b.Property<string>("Title").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
+                b.Property<DateTime?>("UpdatedAt").HasColumnType("datetime2");
+                b.Property<int>("UserId").HasColumnType("int");
+
+                b.HasKey("Id");
+                b.HasIndex("CategoryId");
+                b.HasIndex("UserId");
+                b.ToTable("Advertisements");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.AppLog", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<string>("Action").IsRequired().HasMaxLength(80).HasColumnType("nvarchar(80)");
+                b.Property<int?>("AdminUserId").HasColumnType("int");
+                b.Property<DateTime>("CreatedAt").HasColumnType("datetime2");
+                b.Property<string>("Description").IsRequired().HasMaxLength(500).HasColumnType("nvarchar(500)");
+
+                b.HasKey("Id");
+                b.ToTable("AppLogs");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.Category", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<string>("Description").IsRequired().HasMaxLength(300).HasColumnType("nvarchar(300)");
+                b.Property<bool>("IsActive").HasColumnType("bit");
+                b.Property<string>("Name").IsRequired().HasMaxLength(80).HasColumnType("nvarchar(80)");
+
+                b.HasKey("Id");
+                b.HasIndex("Name").IsUnique();
+                b.ToTable("Categories");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.FavoriteAdvertisement", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("AdvertisementId").HasColumnType("int");
+                b.Property<DateTime>("CreatedAt").HasColumnType("datetime2");
+                b.Property<int>("UserId").HasColumnType("int");
+
+                b.HasKey("Id");
+                b.HasIndex("AdvertisementId");
+                b.HasIndex("UserId", "AdvertisementId").IsUnique();
+                b.ToTable("FavoriteAdvertisements");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.User", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<DateTime>("CreatedAt").HasColumnType("datetime2");
+                b.Property<string>("Email").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
+                b.Property<bool>("IsBlocked").HasColumnType("bit");
+                b.Property<string>("PasswordHash").IsRequired().HasMaxLength(256).HasColumnType("nvarchar(256)");
+                b.Property<string>("PhoneNumber").IsRequired().HasMaxLength(30).HasColumnType("nvarchar(30)");
+                b.Property<int>("Role").HasColumnType("int");
+                b.Property<string>("UserName").IsRequired().HasMaxLength(80).HasColumnType("nvarchar(80)");
+
+                b.HasKey("Id");
+                b.HasIndex("Email").IsUnique();
+                b.ToTable("Users");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.Advertisement", b =>
+            {
+                b.HasOne("Cursovaya.Models.Category", "Category")
+                    .WithMany("Advertisements")
+                    .HasForeignKey("CategoryId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("Cursovaya.Models.User", "User")
+                    .WithMany("Advertisements")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Category");
+                b.Navigation("User");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.FavoriteAdvertisement", b =>
+            {
+                b.HasOne("Cursovaya.Models.Advertisement", "Advertisement")
+                    .WithMany("FavoriteAdvertisements")
+                    .HasForeignKey("AdvertisementId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("Cursovaya.Models.User", "User")
+                    .WithMany("FavoriteAdvertisements")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Advertisement");
+                b.Navigation("User");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.Advertisement", b =>
+            {
+                b.Navigation("FavoriteAdvertisements");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.Category", b =>
+            {
+                b.Navigation("Advertisements");
+            });
+
+            modelBuilder.Entity("Cursovaya.Models.User", b =>
+            {
+                b.Navigation("Advertisements");
+                b.Navigation("FavoriteAdvertisements");
+            });
+        }
+    }
+}
