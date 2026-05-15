@@ -7,10 +7,12 @@ namespace Cursovaya.Services;
 public class AuthService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly EmailService _emailService;
 
-    public AuthService(IUnitOfWork unitOfWork)
+    public AuthService(IUnitOfWork unitOfWork, EmailService emailService)
     {
         _unitOfWork = unitOfWork;
+        _emailService = emailService;
     }
 
     public User? CurrentUser { get; private set; }
@@ -68,6 +70,8 @@ public class AuthService
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
 
+        _ = _emailService.SendWelcomeAsync(user.Email, user.UserName);
+
         CurrentUser = user;
         CurrentUserChanged?.Invoke();
         return ServiceResult<User>.Success(user);
@@ -91,14 +95,19 @@ public class AuthService
             return ServiceResult.Fail("Введите имя пользователя.");
         }
 
+        if (userName.Trim().Length < 2 || userName.Trim().Length > 50)
+        {
+            return ServiceResult.Fail("Имя пользователя должно содержать от 2 до 50 символов.");
+        }
+
         if (!IsEmailValid(email))
         {
             return ServiceResult.Fail("Введите корректный email.");
         }
 
-        if (string.IsNullOrWhiteSpace(phone))
+        if (!IsPhoneValid(phone))
         {
-            return ServiceResult.Fail("Введите телефон.");
+            return ServiceResult.Fail("Введите корректный номер телефона (минимум 7 цифр).");
         }
 
         if (password.Length < 6)
@@ -127,5 +136,16 @@ public class AuthService
         }
 
         return Regex.IsMatch(email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    }
+
+    public static bool IsPhoneValid(string phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return false;
+        }
+
+        var digits = Regex.Replace(phone.Trim(), @"[\s\-\(\)\+]", "");
+        return digits.Length >= 7 && digits.Length <= 15 && Regex.IsMatch(digits, @"^\d+$");
     }
 }

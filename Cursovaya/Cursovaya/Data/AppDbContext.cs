@@ -28,6 +28,7 @@ public class AppDbContext : DbContext
             entity.Property(x => x.PasswordHash).IsRequired().HasMaxLength(256);
             entity.Property(x => x.Role).IsRequired();
             entity.Property(x => x.CreatedAt).IsRequired();
+            entity.Property(x => x.UpdatedAt);
             entity.HasIndex(x => x.Email).IsUnique();
 
             entity.HasMany(x => x.Advertisements)
@@ -63,6 +64,12 @@ public class AppDbContext : DbContext
             entity.Property(x => x.CreatedAt).IsRequired();
             entity.Property(x => x.Condition).IsRequired();
             entity.Property(x => x.Status).IsRequired();
+            entity.Property(x => x.ExpiresAt);
+            entity.Property(x => x.ViewCount).HasDefaultValue(0);
+            entity.HasIndex(x => x.UserId);
+            entity.HasIndex(x => x.CategoryId);
+            entity.HasIndex(x => x.Status);
+            entity.HasIndex(x => x.CreatedAt);
         });
 
         modelBuilder.Entity<FavoriteAdvertisement>(entity =>

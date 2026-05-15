@@ -31,6 +31,7 @@ namespace Cursovaya.Migrations
                 b.Property<string>("City").IsRequired().HasMaxLength(80).HasColumnType("nvarchar(80)");
                 b.Property<int>("Condition").HasColumnType("int");
                 b.Property<DateTime>("CreatedAt").HasColumnType("datetime2");
+                b.Property<DateTime?>("ExpiresAt").HasColumnType("datetime2");
                 b.Property<string>("FullDescription").IsRequired().HasMaxLength(2000).HasColumnType("nvarchar(2000)");
                 b.Property<string>("ImagePath").IsRequired().HasMaxLength(400).HasColumnType("nvarchar(400)");
                 b.Property<decimal>("Price").HasPrecision(18, 2).HasColumnType("decimal(18,2)");
@@ -41,9 +42,12 @@ namespace Cursovaya.Migrations
                 b.Property<string>("Title").IsRequired().HasMaxLength(120).HasColumnType("nvarchar(120)");
                 b.Property<DateTime?>("UpdatedAt").HasColumnType("datetime2");
                 b.Property<int>("UserId").HasColumnType("int");
+                b.Property<int>("ViewCount").HasDefaultValue(0).HasColumnType("int");
 
                 b.HasKey("Id");
                 b.HasIndex("CategoryId");
+                b.HasIndex("CreatedAt");
+                b.HasIndex("Status");
                 b.HasIndex("UserId");
                 b.ToTable("Advertisements");
             });
@@ -114,6 +118,7 @@ namespace Cursovaya.Migrations
                 b.Property<string>("PasswordHash").IsRequired().HasMaxLength(256).HasColumnType("nvarchar(256)");
                 b.Property<string>("PhoneNumber").IsRequired().HasMaxLength(30).HasColumnType("nvarchar(30)");
                 b.Property<int>("Role").HasColumnType("int");
+                b.Property<DateTime?>("UpdatedAt").HasColumnType("datetime2");
                 b.Property<string>("UserName").IsRequired().HasMaxLength(80).HasColumnType("nvarchar(80)");
 
                 b.HasKey("Id");

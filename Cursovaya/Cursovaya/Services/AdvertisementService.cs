@@ -8,11 +8,13 @@ public class AdvertisementService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly UndoRedoService _undoRedoService;
+    private readonly EmailService? _emailService;
 
-    public AdvertisementService(IUnitOfWork unitOfWork, UndoRedoService undoRedoService)
+    public AdvertisementService(IUnitOfWork unitOfWork, UndoRedoService undoRedoService, EmailService? emailService = null)
     {
         _unitOfWork = unitOfWork;
         _undoRedoService = undoRedoService;
+        _emailService = emailService;
     }
 
     public async Task<List<Advertisement>> GetFilteredAsync(AdvertisementFilter filter, bool includeInactive)
@@ -85,9 +87,118 @@ public class AdvertisementService
         return await query.AsNoTracking().ToListAsync();
     }
 
+    public async Task<PagedResult<Advertisement>> GetPagedAsync(AdvertisementFilter filter, bool includeInactive, int page = 1, int pageSize = 10)
+    {
+        var query = _unitOfWork.Advertisements.QueryWithDetails();
+
+        if (!includeInactive)
+        {
+            query = query.Where(x => x.Status == AdvertisementStatus.Active);
+        }
+        else if (filter.Status.HasValue)
+        {
+            query = query.Where(x => x.Status == filter.Status.Value);
+        }
+        else
+        {
+            query = query.Where(x => x.Status != AdvertisementStatus.Deleted);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.SearchText))
+        {
+            var search = filter.SearchText.Trim().ToLower();
+            query = query.Where(x =>
+                x.Title.ToLower().Contains(search) ||
+                x.ShortDescription.ToLower().Contains(search) ||
+                x.FullDescription.ToLower().Contains(search) ||
+                x.City.ToLower().Contains(search) ||
+                (x.User != null && x.User.UserName.ToLower().Contains(search)));
+        }
+
+        if (filter.CategoryId.HasValue)
+            query = query.Where(x => x.CategoryId == filter.CategoryId.Value);
+
+        if (filter.MinPrice.HasValue)
+            query = query.Where(x => x.Price >= filter.MinPrice.Value);
+
+        if (filter.MaxPrice.HasValue)
+            query = query.Where(x => x.Price <= filter.MaxPrice.Value);
+
+        if (!string.IsNullOrWhiteSpace(filter.City))
+        {
+            var city = filter.City.Trim().ToLower();
+            query = query.Where(x => x.City.ToLower().Contains(city));
+        }
+
+        if (filter.Condition.HasValue)
+            query = query.Where(x => x.Condition == filter.Condition.Value);
+
+        if (filter.DateFrom.HasValue)
+            query = query.Where(x => x.CreatedAt >= filter.DateFrom.Value);
+
+        query = filter.SortMode switch
+        {
+            "price_asc" => query.OrderBy(x => x.Price),
+            "price_desc" => query.OrderByDescending(x => x.Price),
+            "title" => query.OrderBy(x => x.Title),
+            _ => query.OrderByDescending(x => x.CreatedAt)
+        };
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return new PagedResult<Advertisement>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    public async Task NotifyExpiringAsync()
+    {
+        if (_emailService == null) return;
+
+        var warningDate = DateTime.Today.AddDays(3);
+        var expiring = await _unitOfWork.Advertisements.QueryWithDetails()
+            .Where(x => x.Status == AdvertisementStatus.Active
+                        && x.ExpiresAt.HasValue
+                        && x.ExpiresAt.Value.Date == warningDate)
+            .ToListAsync();
+
+        foreach (var ad in expiring)
+        {
+            if (ad.User != null)
+                _ = _emailService.SendExpiringWarningAsync(ad.User.Email, ad.User.UserName, ad.Title, 3);
+        }
+    }
+
+    public async Task<List<Advertisement>> GetSimilarAsync(int categoryId, int excludeId, int count = 5)
+    {
+        return await _unitOfWork.Advertisements.QueryWithDetails()
+            .Where(x => x.CategoryId == categoryId && x.Id != excludeId && x.Status == AdvertisementStatus.Active)
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(count)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
     public async Task<Advertisement?> GetByIdAsync(int id)
     {
-        return await _unitOfWork.Advertisements.GetByIdWithDetailsAsync(id);
+        var advertisement = await _unitOfWork.Advertisements.GetByIdWithDetailsAsync(id);
+        if (advertisement != null)
+        {
+            advertisement.ViewCount++;
+            _unitOfWork.Advertisements.Update(advertisement);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        return advertisement;
     }
 
     public async Task<List<Advertisement>> GetByUserAsync(int userId)
@@ -114,6 +225,7 @@ public class AdvertisementService
         advertisement.Status = AdvertisementStatus.Active;
         advertisement.CreatedAt = DateTime.Now;
         advertisement.UpdatedAt = null;
+        advertisement.ExpiresAt = DateTime.Now.AddDays(30);
 
         await _unitOfWork.Advertisements.AddAsync(advertisement);
         await _unitOfWork.SaveChangesAsync();
@@ -191,12 +303,50 @@ public class AdvertisementService
         return ServiceResult.Success();
     }
 
+    public async Task<ServiceResult> RenewAsync(int advertisementId, User? currentUser)
+    {
+        var advertisement = await _unitOfWork.Advertisements.GetByIdAsync(advertisementId);
+        if (advertisement == null)
+            return ServiceResult.Fail("Объявление не найдено.");
+
+        if (!CanEdit(advertisement, currentUser))
+            return ServiceResult.Fail("Можно продлить только своё объявление.");
+
+        advertisement.ExpiresAt = DateTime.Now.AddDays(30);
+        advertisement.Status = AdvertisementStatus.Active;
+        advertisement.UpdatedAt = DateTime.Now;
+        _unitOfWork.Advertisements.Update(advertisement);
+        await _unitOfWork.SaveChangesAsync();
+
+        return ServiceResult.Success();
+    }
+
+    public async Task ExpireOverdueAsync()
+    {
+        var now = DateTime.Now;
+        var overdue = await _unitOfWork.Advertisements.QueryWithDetails()
+            .Where(x => x.Status == AdvertisementStatus.Active && x.ExpiresAt.HasValue && x.ExpiresAt.Value < now)
+            .ToListAsync();
+
+        foreach (var ad in overdue)
+        {
+            ad.Status = AdvertisementStatus.Hidden;
+            ad.UpdatedAt = now;
+            _unitOfWork.Advertisements.Update(ad);
+        }
+
+        if (overdue.Count > 0)
+            await _unitOfWork.SaveChangesAsync();
+    }
+
     public async Task<ServiceResult> ChangeStatusAsync(int advertisementId, AdvertisementStatus status, User? currentUser)
     {
         if (currentUser?.Role != UserRole.Admin)
         {
             return ServiceResult.Fail("Менять статус объявления может только администратор.");
         }
+
+        var advertisement = await _unitOfWork.Advertisements.GetByIdWithDetailsAsync(advertisementId);
 
         await SetStatusInternalAsync(advertisementId, status);
         await _unitOfWork.AppLogs.AddAsync(new AppLog
@@ -207,6 +357,14 @@ public class AdvertisementService
             CreatedAt = DateTime.Now
         });
         await _unitOfWork.SaveChangesAsync();
+
+        if (_emailService != null && advertisement?.User != null)
+        {
+            if (status == AdvertisementStatus.Blocked)
+                _ = _emailService.SendAdvertisementBlockedAsync(advertisement.User.Email, advertisement.User.UserName, advertisement.Title);
+            else if (status == AdvertisementStatus.Active)
+                _ = _emailService.SendAdvertisementActivatedAsync(advertisement.User.Email, advertisement.User.UserName, advertisement.Title);
+        }
 
         return ServiceResult.Success();
     }
@@ -255,15 +413,39 @@ public class AdvertisementService
             return ServiceResult.Fail("Введите название объявления.");
         }
 
-        if (string.IsNullOrWhiteSpace(advertisement.ShortDescription) ||
-            string.IsNullOrWhiteSpace(advertisement.FullDescription))
+        if (advertisement.Title.Trim().Length > 120)
         {
-            return ServiceResult.Fail("Введите описание объявления.");
+            return ServiceResult.Fail("Название не должно превышать 120 символов.");
+        }
+
+        if (string.IsNullOrWhiteSpace(advertisement.ShortDescription))
+        {
+            return ServiceResult.Fail("Введите краткое описание объявления.");
+        }
+
+        if (advertisement.ShortDescription.Trim().Length > 250)
+        {
+            return ServiceResult.Fail("Краткое описание не должно превышать 250 символов.");
+        }
+
+        if (string.IsNullOrWhiteSpace(advertisement.FullDescription))
+        {
+            return ServiceResult.Fail("Введите полное описание объявления.");
+        }
+
+        if (advertisement.FullDescription.Trim().Length > 2000)
+        {
+            return ServiceResult.Fail("Полное описание не должно превышать 2000 символов.");
         }
 
         if (advertisement.Price < 0)
         {
             return ServiceResult.Fail("Цена не может быть отрицательной.");
+        }
+
+        if (advertisement.Price > 999_999_999)
+        {
+            return ServiceResult.Fail("Цена не может превышать 999 999 999.");
         }
 
         if (advertisement.CategoryId <= 0)
@@ -276,14 +458,19 @@ public class AdvertisementService
             return ServiceResult.Fail("Введите город.");
         }
 
+        if (advertisement.City.Trim().Length > 80)
+        {
+            return ServiceResult.Fail("Название города не должно превышать 80 символов.");
+        }
+
         if (!AuthService.IsEmailValid(advertisement.SellerContactEmail))
         {
             return ServiceResult.Fail("Введите корректный контактный email.");
         }
 
-        if (string.IsNullOrWhiteSpace(advertisement.SellerContactPhone))
+        if (!AuthService.IsPhoneValid(advertisement.SellerContactPhone))
         {
-            return ServiceResult.Fail("Введите контактный телефон.");
+            return ServiceResult.Fail("Введите корректный контактный телефон.");
         }
 
         return ServiceResult.Success();
@@ -303,6 +490,7 @@ public class AdvertisementService
             Status = advertisement.Status,
             CreatedAt = advertisement.CreatedAt,
             UpdatedAt = advertisement.UpdatedAt,
+            ExpiresAt = advertisement.ExpiresAt,
             ImagePath = advertisement.ImagePath,
             SellerContactEmail = advertisement.SellerContactEmail,
             SellerContactPhone = advertisement.SellerContactPhone,
@@ -332,5 +520,6 @@ public class AdvertisementService
         target.UserId = source.UserId;
         target.CreatedAt = source.CreatedAt;
         target.UpdatedAt = source.UpdatedAt;
+        target.ExpiresAt = source.ExpiresAt;
     }
 }

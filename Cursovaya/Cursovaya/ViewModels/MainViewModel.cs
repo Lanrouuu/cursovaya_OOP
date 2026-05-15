@@ -10,26 +10,33 @@ public class MainViewModel : ViewModelBase
     private readonly AdvertisementService _advertisementService;
     private readonly CategoryService _categoryService;
     private readonly UserService _userService;
+    private readonly FavoriteService _favoriteService;
+    private readonly AppLogService _appLogService;
     private readonly DialogService _dialogService;
     private readonly ThemeService _themeService;
     private readonly LocalizationService _localizationService;
     private readonly ImageService _imageService;
+    private readonly ExportService _exportService;
     private readonly UndoRedoService _undoRedoService;
     private readonly NavigationService _navigationService;
 
     private ViewModelBase? _currentViewModel;
     private string _selectedTheme;
     private OptionItem _selectedLanguage;
+    private string _currentPage = "Advertisements";
 
     public MainViewModel(
         AuthService authService,
         AdvertisementService advertisementService,
         CategoryService categoryService,
         UserService userService,
+        FavoriteService favoriteService,
+        AppLogService appLogService,
         DialogService dialogService,
         ThemeService themeService,
         LocalizationService localizationService,
         ImageService imageService,
+        ExportService exportService,
         UndoRedoService undoRedoService,
         NavigationService navigationService)
     {
@@ -37,10 +44,13 @@ public class MainViewModel : ViewModelBase
         _advertisementService = advertisementService;
         _categoryService = categoryService;
         _userService = userService;
+        _favoriteService = favoriteService;
+        _appLogService = appLogService;
         _dialogService = dialogService;
         _themeService = themeService;
         _localizationService = localizationService;
         _imageService = imageService;
+        _exportService = exportService;
         _undoRedoService = undoRedoService;
         _navigationService = navigationService;
         _selectedTheme = _themeService.CurrentTheme;
@@ -70,6 +80,12 @@ public class MainViewModel : ViewModelBase
     {
         get => _currentViewModel;
         private set => SetProperty(ref _currentViewModel, value);
+    }
+
+    public string CurrentPage
+    {
+        get => _currentPage;
+        private set => SetProperty(ref _currentPage, value);
     }
 
     public User? CurrentUser => _authService.CurrentUser;
@@ -117,10 +133,12 @@ public class MainViewModel : ViewModelBase
 
     public async Task ShowAdvertisementsAsync()
     {
+        CurrentPage = "Advertisements";
         var viewModel = new AdvertisementsViewModel(
             _advertisementService,
             _categoryService,
             _authService,
+            _favoriteService,
             _dialogService,
             OpenDetailsAsync,
             OpenAddEditAdvertisementAsync);
@@ -131,12 +149,14 @@ public class MainViewModel : ViewModelBase
 
     public void ShowLogin()
     {
+        CurrentPage = "Login";
         var viewModel = new LoginViewModel(_authService, _dialogService, ShowAdvertisementsAsync, ShowRegister);
         _navigationService.Navigate(viewModel);
     }
 
     public void ShowRegister()
     {
+        CurrentPage = "Register";
         var viewModel = new RegisterViewModel(_authService, _dialogService, ShowAdvertisementsAsync, ShowLogin);
         _navigationService.Navigate(viewModel);
     }
@@ -149,10 +169,12 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
+        CurrentPage = "Profile";
         var viewModel = new ProfileViewModel(
             _authService,
             _userService,
             _advertisementService,
+            _favoriteService,
             _themeService,
             _localizationService,
             _dialogService,
@@ -170,11 +192,14 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
+        CurrentPage = "Admin";
         var viewModel = new AdminPanelViewModel(
             _authService,
             _advertisementService,
             _categoryService,
             _userService,
+            _appLogService,
+            _exportService,
             _dialogService);
 
         _navigationService.Navigate(viewModel);
@@ -190,8 +215,13 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        var viewModel = new AdvertisementDetailsViewModel(detailedAdvertisement, ShowAdvertisementsAsync);
+        var viewModel = new AdvertisementDetailsViewModel(
+            detailedAdvertisement,
+            ShowAdvertisementsAsync,
+            _advertisementService,
+            OpenDetailsAsync);
         _navigationService.Navigate(viewModel);
+        await viewModel.LoadSimilarAsync();
     }
 
     private async Task OpenAddEditAdvertisementAsync(Advertisement? advertisement)

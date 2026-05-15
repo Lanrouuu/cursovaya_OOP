@@ -47,30 +47,89 @@
                        Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
                        Margin="4"/>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          BorderThickness="0">
-                <ItemsControl ItemsSource="{Binding Advertisements}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <userControls:AdvertisementCardControl
-                                Title="{Binding Title}"
-                                ShortDescription="{Binding ShortDescription}"
-                                Price="{Binding Price}"
-                                ImagePath="{Binding ImagePath}"
-                                City="{Binding City}"
-                                CategoryName="{Binding Category.Name}"
-                                SellerName="{Binding User.UserName}"
-                                CreatedAt="{Binding CreatedAt}"
-                                OpenCommand="{Binding DataContext.OpenDetailsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                OpenCommandParameter="{Binding}"
-                                EditCommand="{Binding DataContext.EditAdvertisementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                EditCommandParameter="{Binding}"
-                                DeleteCommand="{Binding DataContext.DeleteAdvertisementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                DeleteCommandParameter="{Binding}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <!-- Empty state -->
+            <Border HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Padding="48,40"
+                    CornerRadius="20">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Advertisements.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Width="80" Height="80" CornerRadius="20"
+                            Background="{DynamicResource AccentLightBrush}"
+                            HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <TextBlock Text="📋" FontSize="36"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{DynamicResource NoAdvertisements}"
+                               FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                    <TextBlock Text="{DynamicResource NoAdvertisementsHint}"
+                               Style="{StaticResource PageSubtitleStyle}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <DockPanel>
+                <!-- Pagination -->
+                <Border DockPanel.Dock="Bottom"
+                        Margin="0,12,0,0"
+                        Visibility="{Binding ShowPagination, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="←"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding PreviousPageCommand}"
+                                MinWidth="40"
+                                Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding PageInfo}"
+                                   VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Margin="0,0,8,0"
+                                   Foreground="{DynamicResource MutedTextBrush}"/>
+                        <Button Content="→"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding NextPageCommand}"
+                                MinWidth="40"/>
+                    </StackPanel>
+                </Border>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto" BorderThickness="0">
+                    <ItemsControl ItemsSource="{Binding Advertisements}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <userControls:AdvertisementCardControl
+                                    Title="{Binding Advertisement.Title}"
+                                    ShortDescription="{Binding Advertisement.ShortDescription}"
+                                    Price="{Binding Advertisement.Price}"
+                                    ImagePath="{Binding Advertisement.ImagePath}"
+                                    City="{Binding Advertisement.City}"
+                                    Status="{Binding Advertisement.Status}"
+                                    ViewCount="{Binding ViewCount}"
+                                    FavoritesCount="{Binding FavoritesCount}"
+                                    CategoryName="{Binding Advertisement.Category.Name}"
+                                    SellerName="{Binding Advertisement.User.UserName}"
+                                    CreatedAt="{Binding Advertisement.CreatedAt}"
+                                    IsFavorite="{Binding IsFavorite}"
+                                    ToggleFavoriteCommand="{Binding ToggleFavoriteCommand}"
+                                    OpenCommand="{Binding DataContext.OpenDetailsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    OpenCommandParameter="{Binding Advertisement}"
+                                    EditCommand="{Binding DataContext.EditAdvertisementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    EditCommandParameter="{Binding Advertisement}"
+                                    DeleteCommand="{Binding DataContext.DeleteAdvertisementCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    DeleteCommandParameter="{Binding Advertisement}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
         </Grid>
     </Grid>
 </UserControl>

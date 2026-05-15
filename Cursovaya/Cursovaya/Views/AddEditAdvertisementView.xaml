@@ -61,12 +61,39 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Height="120"
+                    <Border x:Name="ImageDropBorder"
+                            Height="120"
                             CornerRadius="10"
                             ClipToBounds="True"
-                            Background="{DynamicResource HoverBrush}">
-                        <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
-                               Stretch="UniformToFill"/>
+                            Background="{DynamicResource HoverBrush}"
+                            AllowDrop="True"
+                            Drop="ImageDropBorder_Drop"
+                            DragOver="ImageDropBorder_DragOver"
+                            Cursor="Hand"
+                            ToolTip="{DynamicResource DragImageHint}">
+                        <Grid>
+                            <TextBlock Text="{DynamicResource DragImageHint}"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"
+                                       Margin="8"
+                                       TextAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ImagePath}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                                   Stretch="UniformToFill"/>
+                        </Grid>
                     </Border>
                     <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                         <Button Content="{DynamicResource ChooseImage}"

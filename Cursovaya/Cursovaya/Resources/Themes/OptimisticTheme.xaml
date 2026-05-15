@@ -7,6 +7,7 @@
     <SolidColorBrush x:Key="TextBrush" Color="#1C1917"/>
     <SolidColorBrush x:Key="MutedTextBrush" Color="#78716C"/>
     <SolidColorBrush x:Key="DisabledTextBrush" Color="#A8A29E"/>
+    <SolidColorBrush x:Key="DisabledBrush" Color="#FED7AA"/>
     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="BorderBrush" Color="#E7E5E4"/>
     <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FFFFFF"/>

@@ -42,27 +42,38 @@ public partial class App : Application
                 MessageBoxImage.Warning);
         }
 
+        var emailService = new EmailService(configuration);
+
         var unitOfWork = new UnitOfWork(context);
         var undoRedoService = new UndoRedoService();
-        var authService = new AuthService(unitOfWork);
-        var advertisementService = new AdvertisementService(unitOfWork, undoRedoService);
+        var authService = new AuthService(unitOfWork, emailService);
+        var advertisementService = new AdvertisementService(unitOfWork, undoRedoService, emailService);
         var categoryService = new CategoryService(unitOfWork);
-        var userService = new UserService(unitOfWork);
+        var userService = new UserService(unitOfWork, emailService);
+        var favoriteService = new FavoriteService(unitOfWork);
+        var appLogService = new AppLogService(unitOfWork);
         var dialogService = new DialogService();
         var themeService = new ThemeService();
         var localizationService = new LocalizationService();
         var imageService = new ImageService();
+        var exportService = new ExportService();
         var navigationService = new NavigationService();
+
+        var systemTheme = themeService.GetSystemTheme();
+        themeService.ApplyTheme(systemTheme);
 
         var mainViewModel = new MainViewModel(
             authService,
             advertisementService,
             categoryService,
             userService,
+            favoriteService,
+            appLogService,
             dialogService,
             themeService,
             localizationService,
             imageService,
+            exportService,
             undoRedoService,
             navigationService);
 

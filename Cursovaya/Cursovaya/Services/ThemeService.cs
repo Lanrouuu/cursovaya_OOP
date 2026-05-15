@@ -7,6 +7,21 @@ public class ThemeService
     public string CurrentTheme { get; private set; } = "Light";
     public IReadOnlyList<string> Themes { get; } = new[] { "Light", "Dark", "Optimistic", "Blue" };
 
+    public string GetSystemTheme()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return value is int intValue && intValue == 0 ? "Dark" : "Light";
+        }
+        catch
+        {
+            return "Light";
+        }
+    }
+
     public void ApplyTheme(string themeName)
     {
         if (!Themes.Contains(themeName))

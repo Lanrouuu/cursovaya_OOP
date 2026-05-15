@@ -62,20 +62,70 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center">
                     <Button Content="{DynamicResource NavAdvertisements}"
-                            Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateAdvertisementsCommand}"/>
+                            Command="{Binding NavigateAdvertisementsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPage}" Value="Advertisements">
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Content="{DynamicResource NavLogin}"
-                            Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateLoginCommand}"/>
+                            Command="{Binding NavigateLoginCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPage}" Value="Login">
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Content="{DynamicResource NavRegister}"
-                            Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateRegisterCommand}"/>
+                            Command="{Binding NavigateRegisterCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPage}" Value="Register">
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Content="{DynamicResource NavProfile}"
-                            Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateProfileCommand}"/>
+                            Command="{Binding NavigateProfileCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPage}" Value="Profile">
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Content="{DynamicResource NavAdmin}"
-                            Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding NavigateAdminCommand}"/>
+                            Command="{Binding NavigateAdminCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPage}" Value="Admin">
+                                        <Setter Property="Opacity" Value="1"/>
+                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
 
                 <!-- Right side controls -->
