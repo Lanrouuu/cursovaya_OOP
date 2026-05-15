@@ -10,30 +10,21 @@ public static class DbInitializer
     {
         await context.Database.MigrateAsync();
 
-        if (await context.Users.AnyAsync())
-        {
-            return;
-        }
+        var admin = await EnsureUserAsync(
+            context,
+            "Администратор",
+            "admin@mail.com",
+            "+7 900 000-00-01",
+            "admin123",
+            UserRole.Admin);
 
-        var admin = new User
-        {
-            UserName = "Администратор",
-            Email = "admin@mail.com",
-            PhoneNumber = "+7 900 000-00-01",
-            PasswordHash = PasswordService.HashPassword("admin123"),
-            Role = UserRole.Admin,
-            CreatedAt = DateTime.Now
-        };
-
-        var user = new User
-        {
-            UserName = "Тестовый пользователь",
-            Email = "user@mail.com",
-            PhoneNumber = "+7 900 000-00-02",
-            PasswordHash = PasswordService.HashPassword("user123"),
-            Role = UserRole.User,
-            CreatedAt = DateTime.Now
-        };
+        var user = await EnsureUserAsync(
+            context,
+            "Тестовый пользователь",
+            "user@mail.com",
+            "+7 900 000-00-02",
+            "user123",
+            UserRole.User);
 
         var categories = new List<Category>
         {
@@ -46,14 +37,22 @@ public static class DbInitializer
             new() { Name = "Другое", Description = "Прочие объявления" }
         };
 
-        await context.Users.AddRangeAsync(admin, user);
-        await context.Categories.AddRangeAsync(categories);
+        foreach (var category in categories)
+        {
+            await EnsureCategoryAsync(context, category.Name, category.Description);
+        }
+
         await context.SaveChangesAsync();
 
-        var electronics = categories.First(x => x.Name == "Электроника");
-        var clothes = categories.First(x => x.Name == "Одежда");
-        var furniture = categories.First(x => x.Name == "Мебель");
-        var transport = categories.First(x => x.Name == "Транспорт");
+        if (await context.Advertisements.AnyAsync())
+        {
+            return;
+        }
+
+        var electronics = await context.Categories.FirstAsync(x => x.Name == "Электроника");
+        var clothes = await context.Categories.FirstAsync(x => x.Name == "Одежда");
+        var furniture = await context.Categories.FirstAsync(x => x.Name == "Мебель");
+        var transport = await context.Categories.FirstAsync(x => x.Name == "Транспорт");
 
         var advertisements = new List<Advertisement>
         {
@@ -66,6 +65,58 @@ public static class DbInitializer
 
         await context.Advertisements.AddRangeAsync(advertisements);
         await context.SaveChangesAsync();
+    }
+
+    private static async Task<User> EnsureUserAsync(
+        AppDbContext context,
+        string userName,
+        string email,
+        string phoneNumber,
+        string password,
+        UserRole role)
+    {
+        var normalizedEmail = email.Trim().ToLower();
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail);
+
+        if (user == null)
+        {
+            user = new User
+            {
+                UserName = userName,
+                Email = email,
+                PhoneNumber = phoneNumber,
+                CreatedAt = DateTime.Now
+            };
+            await context.Users.AddAsync(user);
+        }
+
+        user.UserName = userName;
+        user.Email = email;
+        user.PhoneNumber = phoneNumber;
+        user.PasswordHash = PasswordService.HashPassword(password);
+        user.Role = role;
+        user.IsBlocked = false;
+        user.UpdatedAt = DateTime.Now;
+
+        return user;
+    }
+
+    private static async Task EnsureCategoryAsync(AppDbContext context, string name, string description)
+    {
+        var category = await context.Categories.FirstOrDefaultAsync(x => x.Name == name);
+        if (category == null)
+        {
+            await context.Categories.AddAsync(new Category
+            {
+                Name = name,
+                Description = description,
+                IsActive = true
+            });
+            return;
+        }
+
+        category.Description = description;
+        category.IsActive = true;
     }
 
     private static Advertisement CreateAdvertisement(

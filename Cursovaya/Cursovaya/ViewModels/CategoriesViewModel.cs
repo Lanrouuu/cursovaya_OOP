@@ -83,7 +83,7 @@ public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось загрузить категории: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoadCategories", ex.Message));
         }
     }
 
@@ -124,7 +124,7 @@ public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
             return;
         }
 
-        if (!_dialogService.Confirm("Удалить выбранную категорию?"))
+        if (!_dialogService.Confirm(LocalizedStrings.Get("ConfirmDeleteCategory")))
         {
             return;
         }

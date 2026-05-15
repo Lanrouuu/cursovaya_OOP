@@ -8,10 +8,12 @@ namespace Cursovaya.Services;
 public class AuthService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly EmailService _emailService;
 
-    public AuthService(IUnitOfWork unitOfWork)
+    public AuthService(IUnitOfWork unitOfWork, EmailService emailService)
     {
         _unitOfWork = unitOfWork;
+        _emailService = emailService;
     }
 
     public User? CurrentUser { get; private set; }
@@ -27,18 +29,18 @@ public class AuthService
 
         if (string.IsNullOrWhiteSpace(normalizedEmail) || string.IsNullOrWhiteSpace(normalizedPassword))
         {
-            return ServiceResult<User>.Fail("Введите email и пароль.");
+            return ServiceResult<User>.Fail(LocalizedStrings.Get("ErrorEnterEmailPassword"));
         }
 
         var user = await _unitOfWork.Users.GetByEmailAsync(normalizedEmail);
         if (user == null || !PasswordService.VerifyPassword(normalizedPassword, user.PasswordHash))
         {
-            return ServiceResult<User>.Fail("Неверный email или пароль.");
+            return ServiceResult<User>.Fail(LocalizedStrings.Get("ErrorInvalidEmailPassword"));
         }
 
         if (user.IsBlocked)
         {
-            return ServiceResult<User>.Fail("Пользователь заблокирован.");
+            return ServiceResult<User>.Fail(LocalizedStrings.Get("ErrorUserBlocked"));
         }
 
         CurrentUser = user;
@@ -88,8 +90,10 @@ public class AuthService
         catch (DbUpdateException)
         {
             _unitOfWork.Detach(user);
-            return ServiceResult<User>.Fail("Не удалось создать пользователя. Проверьте, что email не занят, и попробуйте еще раз.");
+            return ServiceResult<User>.Fail(LocalizedStrings.Get("ErrorCreateUserFailed"));
         }
+
+        _ = _emailService.SendWelcomeAsync(user.Email, user.UserName);
 
         CurrentUser = user;
         CurrentUserChanged?.Invoke();
@@ -111,32 +115,37 @@ public class AuthService
     {
         if (string.IsNullOrWhiteSpace(userName))
         {
-            return ServiceResult.Fail("Введите имя пользователя.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorEnterUserName"));
+        }
+
+        if (userName.Trim().Length < 2 || userName.Trim().Length > 50)
+        {
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorUserNameLength"));
         }
 
         if (!IsEmailValid(email))
         {
-            return ServiceResult.Fail("Введите корректный email.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorEnterValidEmail"));
         }
 
-        if (string.IsNullOrWhiteSpace(phone))
+        if (!IsPhoneValid(phone))
         {
-            return ServiceResult.Fail("Введите телефон.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorEnterValidPhone"));
         }
 
         if (password.Length < 6)
         {
-            return ServiceResult.Fail("Пароль должен содержать минимум 6 символов.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorPasswordLength"));
         }
 
         if (password != confirmPassword)
         {
-            return ServiceResult.Fail("Пароли не совпадают.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorPasswordsMismatch"));
         }
 
         if (await _unitOfWork.Users.IsEmailTakenAsync(email))
         {
-            return ServiceResult.Fail("Пользователь с таким email уже есть.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorEmailAlreadyExists"));
         }
 
         return ServiceResult.Success();
@@ -150,5 +159,16 @@ public class AuthService
         }
 
         return Regex.IsMatch(email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    }
+
+    public static bool IsPhoneValid(string phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return false;
+        }
+
+        var digits = Regex.Replace(phone.Trim(), @"[\s\-\(\)\+]", "");
+        return digits.Length >= 7 && digits.Length <= 15 && Regex.IsMatch(digits, @"^\d+$");
     }
 }

@@ -8,4 +8,9 @@ public partial class SearchFilterControl : UserControl
     {
         InitializeComponent();
     }
+
+    private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+
+    }
 }

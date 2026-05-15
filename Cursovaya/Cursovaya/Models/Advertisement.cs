@@ -12,6 +12,8 @@ public class Advertisement
     public AdvertisementStatus Status { get; set; } = AdvertisementStatus.Active;
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime? UpdatedAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }
+    public int ViewCount { get; set; }
     public string ImagePath { get; set; } = string.Empty;
     public string SellerContactEmail { get; set; } = string.Empty;
     public string SellerContactPhone { get; set; } = string.Empty;
@@ -23,4 +25,6 @@ public class Advertisement
     public Category? Category { get; set; }
 
     public ICollection<FavoriteAdvertisement> FavoriteAdvertisements { get; set; } = new List<FavoriteAdvertisement>();
+
+    public int FavoritesCount => FavoriteAdvertisements.Count;
 }

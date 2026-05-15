@@ -62,7 +62,7 @@ public class AddEditAdvertisementViewModel : ViewModelBase
     public ObservableCollection<Category> Categories { get; } = new();
     public ObservableCollection<ItemCondition> ConditionValues { get; }
     public bool IsEditMode => _editingAdvertisement != null;
-    public string PageTitle => IsEditMode ? "Редактирование объявления" : "Новое объявление";
+    public string PageTitle => LocalizedStrings.Get(IsEditMode ? "EditAdvertisementTitle" : "NewAdvertisementTitle");
 
     public string Title
     {
@@ -182,12 +182,13 @@ public class AddEditAdvertisementViewModel : ViewModelBase
         !string.IsNullOrWhiteSpace(Title) &&
         !string.IsNullOrWhiteSpace(ShortDescription) &&
         !string.IsNullOrWhiteSpace(FullDescription) &&
-        decimal.TryParse(PriceText, out var price) &&
-        price >= 0 &&
+        decimal.TryParse(PriceText.Replace(',', '.'), System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var price) &&
+        price >= 0 && price <= 999_999_999 &&
         SelectedCategory != null &&
         !string.IsNullOrWhiteSpace(City) &&
         AuthService.IsEmailValid(SellerContactEmail) &&
-        !string.IsNullOrWhiteSpace(SellerContactPhone);
+        AuthService.IsPhoneValid(SellerContactPhone);
 
     public RelayCommand SaveCommand { get; }
     public RelayCommand CancelCommand { get; }
@@ -210,7 +211,7 @@ public class AddEditAdvertisementViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось загрузить категории: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoadCategories", ex.Message));
         }
     }
 
@@ -253,7 +254,7 @@ public class AddEditAdvertisementViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось сохранить объявление: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorSaveAdvertisement", ex.Message));
         }
     }
 
@@ -261,19 +262,45 @@ public class AddEditAdvertisementViewModel : ViewModelBase
     {
         price = 0;
 
-        if (!decimal.TryParse(PriceText, out price) || price < 0)
+        if (!decimal.TryParse(PriceText.Replace(',', '.'), System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out price) || price < 0)
         {
-            ErrorMessage = "Цена должна быть числом не меньше 0.";
+            ErrorMessage = LocalizedStrings.Get("ErrorPriceMustBeNumber");
+            return false;
+        }
+
+        if (price > 999_999_999)
+        {
+            ErrorMessage = LocalizedStrings.Get("ErrorPriceTooLarge");
             return false;
         }
 
         if (!CanSave)
         {
-            ErrorMessage = "Заполните все обязательные поля.";
+            ErrorMessage = LocalizedStrings.Get("ErrorFillRequiredFields");
             return false;
         }
 
         return true;
+    }
+
+    public void ApplyDroppedImage(string path)
+    {
+        if (!ImageService.IsAllowedImageExtension(path))
+        {
+            ErrorMessage = LocalizedStrings.Get("ErrorAllowedImageFormats");
+            return;
+        }
+
+        var copied = _imageService.CopyToUserImages(path);
+        if (string.IsNullOrWhiteSpace(copied))
+        {
+            ErrorMessage = LocalizedStrings.Get("ErrorLoadImage");
+            return;
+        }
+
+        ErrorMessage = string.Empty;
+        ImagePath = copied;
     }
 
     private void BrowseImage()
@@ -284,7 +311,21 @@ public class AddEditAdvertisementViewModel : ViewModelBase
             return;
         }
 
-        ImagePath = _imageService.CopyToUserImages(selectedPath);
+        if (!ImageService.IsAllowedImageExtension(selectedPath))
+        {
+            ErrorMessage = LocalizedStrings.Get("ErrorAllowedImageFormats");
+            return;
+        }
+
+        var copied = _imageService.CopyToUserImages(selectedPath);
+        if (string.IsNullOrWhiteSpace(copied))
+        {
+            ErrorMessage = LocalizedStrings.Get("ErrorLoadImage");
+            return;
+        }
+
+        ErrorMessage = string.Empty;
+        ImagePath = copied;
     }
 
     private void FillFromAdvertisement(Advertisement advertisement)

@@ -9,6 +9,7 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
     private readonly AuthService _authService;
     private readonly UserService _userService;
     private readonly AdvertisementService _advertisementService;
+    private readonly FavoriteService _favoriteService;
     private readonly ThemeService _themeService;
     private readonly LocalizationService _localizationService;
     private readonly DialogService _dialogService;
@@ -20,11 +21,16 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
     private string _selectedTheme;
     private OptionItem _selectedLanguage;
     private string _errorMessage = string.Empty;
+    private string _currentPassword = string.Empty;
+    private string _newPassword = string.Empty;
+    private string _confirmNewPassword = string.Empty;
+    private string _passwordErrorMessage = string.Empty;
 
     public ProfileViewModel(
         AuthService authService,
         UserService userService,
         AdvertisementService advertisementService,
+        FavoriteService favoriteService,
         ThemeService themeService,
         LocalizationService localizationService,
         DialogService dialogService,
@@ -33,6 +39,7 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         _authService = authService;
         _userService = userService;
         _advertisementService = advertisementService;
+        _favoriteService = favoriteService;
         _themeService = themeService;
         _localizationService = localizationService;
         _dialogService = dialogService;
@@ -47,10 +54,13 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         _selectedLanguage = Languages.First(x => x.Value == _localizationService.CurrentLanguage);
 
         SaveProfileCommand = new RelayCommand(async _ => await SaveProfileAsync());
+        ChangePasswordCommand = new RelayCommand(async _ => await ChangePasswordAsync());
         EditAdvertisementCommand = new RelayCommand(async parameter => await EditAdvertisementAsync(parameter));
+        RenewAdvertisementCommand = new RelayCommand(async parameter => await RenewAdvertisementAsync(parameter));
     }
 
     public ObservableCollection<Advertisement> MyAdvertisements { get; } = new();
+    public ObservableCollection<Advertisement> FavoriteAdvertisements { get; } = new();
     public ObservableCollection<string> Themes { get; }
     public ObservableCollection<OptionItem> Languages { get; }
 
@@ -102,8 +112,34 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         set => SetProperty(ref _errorMessage, value);
     }
 
+    public string CurrentPassword
+    {
+        get => _currentPassword;
+        set => SetProperty(ref _currentPassword, value);
+    }
+
+    public string NewPassword
+    {
+        get => _newPassword;
+        set => SetProperty(ref _newPassword, value);
+    }
+
+    public string ConfirmNewPassword
+    {
+        get => _confirmNewPassword;
+        set => SetProperty(ref _confirmNewPassword, value);
+    }
+
+    public string PasswordErrorMessage
+    {
+        get => _passwordErrorMessage;
+        set => SetProperty(ref _passwordErrorMessage, value);
+    }
+
     public RelayCommand SaveProfileCommand { get; }
+    public RelayCommand ChangePasswordCommand { get; }
     public RelayCommand EditAdvertisementCommand { get; }
+    public RelayCommand RenewAdvertisementCommand { get; }
 
     public async Task LoadAsync()
     {
@@ -118,11 +154,29 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         PhoneNumber = currentUser.PhoneNumber;
 
         await LoadAdvertisementsAsync();
+        await LoadFavoritesAsync();
     }
 
     public async Task RefreshAsync()
     {
         await LoadAsync();
+    }
+
+    private async Task LoadFavoritesAsync()
+    {
+        var currentUser = _authService.CurrentUser;
+        if (currentUser == null) return;
+
+        try
+        {
+            FavoriteAdvertisements.Clear();
+            foreach (var item in await _favoriteService.GetFavoritesAsync(currentUser.Id))
+                FavoriteAdvertisements.Add(item);
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoadFavorites", ex.Message));
+        }
     }
 
     private async Task LoadAdvertisementsAsync()
@@ -143,7 +197,7 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось загрузить личные объявления: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoadMyAdvertisements", ex.Message));
         }
     }
 
@@ -163,7 +217,29 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         }
 
         ErrorMessage = string.Empty;
-        _dialogService.ShowMessage("Профиль сохранён.");
+        _dialogService.ShowMessage(LocalizedStrings.Get("MessageProfileSaved"));
+    }
+
+    private async Task ChangePasswordAsync()
+    {
+        var currentUser = _authService.CurrentUser;
+        if (currentUser == null)
+        {
+            return;
+        }
+
+        var result = await _userService.ChangePasswordAsync(currentUser, CurrentPassword, NewPassword, ConfirmNewPassword);
+        if (!result.IsSuccess)
+        {
+            PasswordErrorMessage = result.ErrorMessage;
+            return;
+        }
+
+        PasswordErrorMessage = string.Empty;
+        CurrentPassword = string.Empty;
+        NewPassword = string.Empty;
+        ConfirmNewPassword = string.Empty;
+        _dialogService.ShowMessage(LocalizedStrings.Get("MessagePasswordChanged"));
     }
 
     private async Task EditAdvertisementAsync(object? parameter)
@@ -172,5 +248,20 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         {
             await _openEdit(advertisement);
         }
+    }
+
+    private async Task RenewAdvertisementAsync(object? parameter)
+    {
+        if (parameter is not Advertisement advertisement) return;
+
+        var result = await _advertisementService.RenewAsync(advertisement.Id, _authService.CurrentUser);
+        if (!result.IsSuccess)
+        {
+            _dialogService.ShowError(result.ErrorMessage);
+            return;
+        }
+
+        _dialogService.ShowMessage(LocalizedStrings.Get("MessageAdvertisementRenewed"));
+        await LoadAdvertisementsAsync();
     }
 }

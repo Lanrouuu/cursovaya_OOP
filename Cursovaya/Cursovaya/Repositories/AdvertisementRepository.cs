@@ -14,7 +14,8 @@ public class AdvertisementRepository : Repository<Advertisement>, IAdvertisement
     {
         return DbSet
             .Include(x => x.User)
-            .Include(x => x.Category);
+            .Include(x => x.Category)
+            .Include(x => x.FavoriteAdvertisements);
     }
 
     public async Task<Advertisement?> GetByIdWithDetailsAsync(int id)

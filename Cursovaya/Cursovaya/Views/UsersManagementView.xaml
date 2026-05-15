@@ -8,9 +8,6 @@
                      ToolTip="{DynamicResource Search}"/>
             <Button Content="{DynamicResource Block}" Command="{Binding BlockCommand}"/>
             <Button Content="{DynamicResource Activate}" Command="{Binding UnblockCommand}"/>
-            <Button Content="{DynamicResource Apply}"
-                    Style="{StaticResource SecondaryButtonStyle}"
-                    Command="{Binding RefreshCommand}"/>
         </StackPanel>
 
         <DataGrid ItemsSource="{Binding Users}"
@@ -20,8 +17,8 @@
                 <DataGridTextColumn Header="{DynamicResource UserName}" Binding="{Binding UserName}" Width="2*"/>
                 <DataGridTextColumn Header="{DynamicResource Email}" Binding="{Binding Email}" Width="2*"/>
                 <DataGridTextColumn Header="{DynamicResource Phone}" Binding="{Binding PhoneNumber}" Width="*"/>
-                <DataGridTextColumn Header="Role" Binding="{Binding Role, Converter={StaticResource EnumToStringConverter}}" Width="*"/>
-                <DataGridCheckBoxColumn Header="Blocked" Binding="{Binding IsBlocked}" Width="*"/>
+                <DataGridTextColumn Header="{DynamicResource Role}" Binding="{Binding Role, Converter={StaticResource EnumToStringConverter}}" Width="*"/>
+                <DataGridCheckBoxColumn Header="{DynamicResource Blocked}" Binding="{Binding IsBlocked}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

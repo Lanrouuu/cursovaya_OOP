@@ -61,7 +61,7 @@ public class UsersManagementViewModel : ViewModelBase, IRefreshableViewModel
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось загрузить пользователей: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoadUsers", ex.Message));
         }
     }
 

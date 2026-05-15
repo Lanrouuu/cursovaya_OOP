@@ -65,7 +65,7 @@ public class LoginViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось войти: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoginFailed", ex.Message));
         }
     }
 }

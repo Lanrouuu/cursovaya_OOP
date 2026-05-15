@@ -1,6 +1,7 @@
 <UserControl x:Class="Cursovaya.UserControls.SearchFilterControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Foreground="White">
     <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,20">
         <Grid>
             <Grid.RowDefinitions>
@@ -30,41 +31,52 @@
                     <TextBlock Text="{DynamicResource SearchQuery}" Style="{StaticResource FilterLabelStyle}"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource WatermarkTextBoxStyle}"
-                             Tag="{DynamicResource SearchPlaceholder}"/>
+                             Foreground="White" CaretBrush="White"
+                             Tag="{DynamicResource SearchPlaceholder}" Height="41"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource Category}" Style="{StaticResource FilterLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding Categories}"
                               SelectedItem="{Binding SelectedCategory}"
-                              DisplayMemberPath="Name"/>
+                              Foreground="White">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name, Converter={StaticResource CategoryNameConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource PriceFrom}" Style="{StaticResource FilterLabelStyle}"/>
                     <TextBox Text="{Binding MinPriceText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource WatermarkTextBoxStyle}"
-                             Tag="{DynamicResource PriceFromPlaceholder}"/>
+                             Foreground="White" CaretBrush="White"
+                             Tag="{DynamicResource PriceFromPlaceholder}" Height="40"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="3" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource PriceTo}" Style="{StaticResource FilterLabelStyle}"/>
                     <TextBox Text="{Binding MaxPriceText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource WatermarkTextBoxStyle}"
-                             Tag="{DynamicResource PriceToPlaceholder}"/>
+                             Foreground="White" CaretBrush="White"
+                             Tag="{DynamicResource PriceToPlaceholder}" Height="35"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource City}" Style="{StaticResource FilterLabelStyle}"/>
                     <TextBox Text="{Binding City, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource WatermarkTextBoxStyle}"
-                             Tag="{DynamicResource CityPlaceholder}"/>
+                             Foreground="White" CaretBrush="White"
+                             Tag="{DynamicResource CityPlaceholder}" Height="38" TextChanged="TextBox_TextChanged"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="5" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource Condition}" Style="{StaticResource FilterLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ConditionValues}"
-                              SelectedItem="{Binding SelectedCondition}">
+                              SelectedItem="{Binding SelectedCondition}"
+                              Foreground="White">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Converter={StaticResource EnumToStringConverter}}"/>
@@ -75,14 +87,35 @@
 
                 <StackPanel Grid.Column="6" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource DateFrom}" Style="{StaticResource FilterLabelStyle}"/>
-                    <DatePicker SelectedDate="{Binding DateFrom}"/>
+
+                    <DatePicker SelectedDate="{Binding DateFrom}" Foreground="White">
+                        <DatePicker.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="Transparent"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.WindowFrameBrushKey}" Color="Transparent"/>
+
+                            <Style TargetType="DatePickerTextBox">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="CaretBrush" Value="White"/>
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            </Style>
+                        </DatePicker.Resources>
+                    </DatePicker>
                 </StackPanel>
 
                 <StackPanel Grid.Column="7" Style="{StaticResource FilterFieldPanelStyle}">
                     <TextBlock Text="{DynamicResource Sort}" Style="{StaticResource FilterLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding SortOptions}"
                               SelectedItem="{Binding SelectedSortOption}"
-                              DisplayMemberPath="Title"/>
+                              Foreground="White">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Value, Converter={StaticResource SortOptionTitleConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </StackPanel>
 
                 <StackPanel Grid.Column="8" Style="{StaticResource FilterFieldPanelStyle}" Margin="0">

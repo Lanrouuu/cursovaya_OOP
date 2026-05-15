@@ -27,12 +27,12 @@ public class CategoryService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return ServiceResult.Fail("Введите название категории.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorEnterCategoryName"));
         }
 
         if (await _unitOfWork.Categories.GetByNameAsync(name) != null)
         {
-            return ServiceResult.Fail("Такая категория уже существует.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorCategoryAlreadyExists"));
         }
 
         await _unitOfWork.Categories.AddAsync(new Category
@@ -50,19 +50,19 @@ public class CategoryService
     {
         if (string.IsNullOrWhiteSpace(category.Name))
         {
-            return ServiceResult.Fail("Введите название категории.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorEnterCategoryName"));
         }
 
         var existing = await _unitOfWork.Categories.GetByIdAsync(category.Id);
         if (existing == null)
         {
-            return ServiceResult.Fail("Категория не найдена.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorCategoryNotFound"));
         }
 
         var duplicate = await _unitOfWork.Categories.GetByNameAsync(category.Name);
         if (duplicate != null && duplicate.Id != category.Id)
         {
-            return ServiceResult.Fail("Такая категория уже существует.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorCategoryAlreadyExists"));
         }
 
         existing.Name = category.Name.Trim();
@@ -80,12 +80,12 @@ public class CategoryService
         var existing = await _unitOfWork.Categories.GetByIdAsync(category.Id);
         if (existing == null)
         {
-            return ServiceResult.Fail("Категория не найдена.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorCategoryNotFound"));
         }
 
         if (await _unitOfWork.Categories.IsUsedAsync(category.Id))
         {
-            return ServiceResult.Fail("Нельзя удалить категорию, которая используется в объявлениях.");
+            return ServiceResult.Fail(LocalizedStrings.Get("ErrorCategoryInUse"));
         }
 
         _unitOfWork.Categories.Delete(existing);

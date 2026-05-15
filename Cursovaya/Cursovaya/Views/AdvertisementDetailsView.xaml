@@ -1,12 +1,12 @@
 <UserControl x:Class="Cursovaya.Views.AdvertisementDetailsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:userControls="clr-namespace:Cursovaya.UserControls">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="32,24,32,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Top bar -->
@@ -28,7 +28,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="440"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="340"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Image -->
@@ -37,9 +36,10 @@
                         Padding="0"
                         ClipToBounds="True"
                         Margin="0,8,12,8">
-                    <Grid Background="{DynamicResource HoverBrush}">
+                    <Grid>
                         <StackPanel HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding Advertisement.ImagePath, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Invert}">
                             <Border Width="76"
                                     Height="76"
                                     CornerRadius="12"
@@ -58,8 +58,13 @@
                                        Margin="0,12,0,0"
                                        FontSize="13"/>
                         </StackPanel>
-                        <Image Source="{Binding Advertisement.ImagePath, Converter={StaticResource ImagePathConverter}}"
-                               Stretch="UniformToFill"/>
+                        <Border CornerRadius="14"
+                                Visibility="{Binding Advertisement.ImagePath, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Border.Background>
+                                <ImageBrush ImageSource="{Binding Advertisement.ImagePath, Converter={StaticResource ImagePathConverter}}"
+                                            Stretch="UniformToFill"/>
+                            </Border.Background>
+                        </Border>
                     </Grid>
                 </Border>
 
@@ -73,14 +78,24 @@
                                    FontSize="30"
                                    FontWeight="Bold"
                                    Margin="0,0,0,6"/>
-                        <TextBlock Text="{Binding Advertisement.Price, StringFormat={}{0:N0} ₽, Mode=OneWay}"
-                                   Style="{StaticResource PriceTextStyle}"
-                                   FontSize="24"
-                                   Margin="0,0,0,20"/>
+                        <TextBlock FontSize="24"
+                                   Margin="0,0,0,20">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource PriceTextStyle}">
+                                    <Setter Property="Text" Value="{Binding Advertisement.Price, StringFormat={}{0:N0} ₽, Mode=OneWay}"/>
+                                    <Setter Property="FontSize" Value="24"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Advertisement.Price}" Value="0">
+                                            <Setter Property="Text" Value="{DynamicResource Free}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
                         <WrapPanel Margin="0,0,0,20">
                             <Border Style="{StaticResource TagStyle}">
-                                <TextBlock Text="{Binding Advertisement.Category.Name, Mode=OneWay}" FontSize="13"/>
+                                <TextBlock Text="{Binding Advertisement.Category.Name, Converter={StaticResource CategoryNameConverter}, Mode=OneWay}" FontSize="13"/>
                             </Border>
                             <Border Style="{StaticResource TagStyle}">
                                 <TextBlock Text="{Binding Advertisement.City, Mode=OneWay}" FontSize="13"/>
@@ -95,6 +110,18 @@
                                     <Run Text="{Binding Advertisement.Condition, Converter={StaticResource EnumToStringConverter}, Mode=OneWay}"/>
                                 </TextBlock>
                             </Border>
+                            <Border Style="{StaticResource TagStyle}">
+                                <TextBlock FontSize="13" Foreground="{DynamicResource MutedTextBrush}">
+                                    <Run Text="👁"/>
+                                    <Run Text="{Binding Advertisement.ViewCount, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Border>
+                            <Border Style="{StaticResource TagStyle}">
+                                <TextBlock FontSize="13" Foreground="{DynamicResource DangerBrush}">
+                                    <Run Text="❤"/>
+                                    <Run Text="{Binding Advertisement.FavoritesCount, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Border>
                         </WrapPanel>
 
                         <Separator/>
@@ -107,50 +134,133 @@
                                    LineHeight="24"
                                    Margin="0,0,0,20"/>
 
-                        <Button Content="{DynamicResource ShowContacts}"
-                                Command="{Binding ShowContactsCommand}"
-                                HorizontalAlignment="Left"
-                                MinWidth="180"/>
-                    </StackPanel>
-                </Border>
+                        <Separator/>
+                        <TextBlock Text="{DynamicResource Seller}"
+                                   FontWeight="Bold"
+                                   FontSize="18"
+                                   Margin="0,14,0,10"/>
+                        <Border Background="{DynamicResource AccentLightBrush}"
+                                CornerRadius="10"
+                                Padding="16,14">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="1.6*"/>
+                                </Grid.ColumnDefinitions>
 
-                <!-- Seller info -->
-                <StackPanel Grid.Column="2" Margin="8">
-                    <userControls:ContactInfoControl
-                        SellerName="{Binding Advertisement.User.UserName, Mode=OneWay}"
-                        Email="{Binding Advertisement.SellerContactEmail, Mode=OneWay}"
-                        PhoneNumber="{Binding Advertisement.SellerContactPhone, Mode=OneWay}"
-                        ShowActionButton="False"
-                        Visibility="{Binding ShowContacts, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-                    <Border Style="{StaticResource CardBorderStyle}"
-                            Visibility="{Binding ShowContacts, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}"
-                            Margin="0,8,0,0">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Seller}"
-                                       FontWeight="Bold"
-                                       FontSize="18"
-                                       Margin="0,0,0,10"/>
-                            <Border Background="{DynamicResource AccentLightBrush}"
-                                    CornerRadius="10"
-                                    Padding="16,12"
-                                    Margin="0,0,0,12">
                                 <StackPanel>
                                     <TextBlock Text="{Binding Advertisement.User.UserName, Mode=OneWay}"
                                                FontWeight="SemiBold"
-                                               FontSize="15"
+                                               FontSize="16"
                                                Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="{DynamicResource ContactsHidden}"
+                                    <TextBlock Text="{DynamicResource Seller}"
                                                Style="{StaticResource MutedTextStyle}"
                                                FontSize="13"
-                                               LineHeight="20"
-                                               Margin="0,8,0,0"/>
+                                               Margin="0,6,0,0"/>
                                 </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Margin="0,0,0,6" FontSize="14">
+                                        <Run Text="{DynamicResource Email}" FontWeight="SemiBold"/>
+                                        <Run Text=": "/>
+                                        <Run Text="{Binding Advertisement.SellerContactEmail, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="14">
+                                        <Run Text="{DynamicResource Phone}" FontWeight="SemiBold"/>
+                                        <Run Text=": "/>
+                                        <Run Text="{Binding Advertisement.SellerContactPhone, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
             </Grid>
+            <!-- Similar advertisements -->
+            <Border Grid.Row="2" Margin="0,24,0,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SimilarAdvertisements.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource SimilarAdvertisements}"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Margin="0,0,0,16"/>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding SimilarAdvertisements}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardBorderStyle}"
+                                            Width="220"
+                                            Margin="0,0,16,0"
+                                            Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding Gesture="LeftClick"
+                                                          Command="{Binding DataContext.OpenSimilarCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                        </Border.InputBindings>
+                                        <StackPanel>
+                                            <Border Height="130"
+                                                    CornerRadius="8"
+                                                    Background="{DynamicResource HoverBrush}"
+                                                    ClipToBounds="True"
+                                                    Margin="0,0,0,10">
+                                                <Grid>
+                                                    <TextBlock Text="{DynamicResource Photo}"
+                                                               Foreground="{DynamicResource MutedTextBrush}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="13"/>
+                                                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                                                           Stretch="UniformToFill"/>
+                                                </Grid>
+                                            </Border>
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="14"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxHeight="40"
+                                                       Margin="0,0,0,6"/>
+                                            <TextBlock FontSize="16"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{Binding Price, StringFormat={}{0:N0} ₽}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Price}" Value="0">
+                                                                <Setter Property="Text" Value="{DynamicResource Free}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding City}"
+                                                       Style="{StaticResource MutedTextStyle}"
+                                                       FontSize="12"
+                                                       Margin="0,4,0,0"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
         </Grid>
     </ScrollViewer>
 </UserControl>

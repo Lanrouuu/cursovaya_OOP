@@ -8,6 +8,8 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
 {
     private readonly AuthService _authService;
     private readonly AdvertisementService _advertisementService;
+    private readonly AppLogService _appLogService;
+    private readonly ExportService _exportService;
     private readonly DialogService _dialogService;
     private string _searchText = string.Empty;
     private Advertisement? _selectedAdvertisement;
@@ -19,10 +21,14 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         AdvertisementService advertisementService,
         CategoryService categoryService,
         UserService userService,
+        AppLogService appLogService,
+        ExportService exportService,
         DialogService dialogService)
     {
         _authService = authService;
         _advertisementService = advertisementService;
+        _appLogService = appLogService;
+        _exportService = exportService;
         _dialogService = dialogService;
 
         UsersViewModel = new UsersManagementViewModel(userService, dialogService);
@@ -36,11 +42,14 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         DeleteCommand = new RelayCommand(async _ => await DeleteAsync(), _ => SelectedAdvertisement != null);
         ApplyStatusFilterCommand = new RelayCommand(async _ => await LoadAdvertisementsAsync());
         ClearFilterCommand = new RelayCommand(async _ => await ClearFilterAsync());
+        ExportUsersCommand = new RelayCommand(_ => ExportUsers());
+        ExportAdvertisementsCommand = new RelayCommand(_ => ExportAdvertisements());
     }
 
     public UsersManagementViewModel UsersViewModel { get; }
     public CategoriesViewModel CategoriesViewModel { get; }
     public ObservableCollection<Advertisement> Advertisements { get; } = new();
+    public ObservableCollection<AppLog> AppLogs { get; } = new();
     public ObservableCollection<AdvertisementStatus> StatusValues { get; }
 
     public string SearchText
@@ -86,12 +95,26 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
     public RelayCommand DeleteCommand { get; }
     public RelayCommand ApplyStatusFilterCommand { get; }
     public RelayCommand ClearFilterCommand { get; }
+    public RelayCommand ExportUsersCommand { get; }
+    public RelayCommand ExportAdvertisementsCommand { get; }
 
     public async Task LoadAsync()
     {
         await UsersViewModel.LoadAsync();
         await CategoriesViewModel.LoadAsync();
         await LoadAdvertisementsAsync();
+        await LoadLogsAsync();
+    }
+
+    private async Task LoadLogsAsync()
+    {
+        try
+        {
+            AppLogs.Clear();
+            foreach (var log in await _appLogService.GetRecentAsync())
+                AppLogs.Add(log);
+        }
+        catch { }
     }
 
     public async Task RefreshAsync()
@@ -124,7 +147,7 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось загрузить объявления админ-панели: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorLoadAdminAdvertisements", ex.Message));
         }
         finally
         {
@@ -156,7 +179,7 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
             return;
         }
 
-        if (!_dialogService.Confirm("Удалить объявление из админ-панели?"))
+        if (!_dialogService.Confirm(LocalizedStrings.Get("ConfirmDeleteAdminAdvertisement")))
         {
             return;
         }
@@ -176,6 +199,20 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         SearchText = string.Empty;
         SelectedStatus = null;
         await LoadAdvertisementsAsync();
+    }
+
+    private void ExportUsers()
+    {
+        var exported = _exportService.ExportUsers(UsersViewModel.Users);
+        if (exported)
+            _dialogService.ShowMessage(LocalizedStrings.Get("MessageUsersExported"));
+    }
+
+    private void ExportAdvertisements()
+    {
+        var exported = _exportService.ExportAdvertisements(Advertisements);
+        if (exported)
+            _dialogService.ShowMessage(LocalizedStrings.Get("MessageAdvertisementsExported"));
     }
 
     private async void ReloadAdvertisementsAfterChange()

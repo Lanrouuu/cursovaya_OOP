@@ -13,7 +13,7 @@
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="60"/>
                 <DataGridTextColumn Header="{DynamicResource Title}" Binding="{Binding Name}" Width="2*"/>
                 <DataGridTextColumn Header="{DynamicResource FullDescription}" Binding="{Binding Description}" Width="2*"/>
-                <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="*"/>
+                <DataGridCheckBoxColumn Header="{DynamicResource IsActive}" Binding="{Binding IsActive}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
 
@@ -21,7 +21,7 @@
             <StackPanel>
                 <TextBlock Text="{DynamicResource Categories}" Style="{StaticResource SectionTitleStyle}"
                            Margin="0,0,0,4"/>
-                <TextBlock Text="{DynamicResource AddEditSubtitle}"
+                <TextBlock Text="{DynamicResource CategoriesSubtitle}"
                            Style="{StaticResource PageSubtitleStyle}"
                            Margin="0,0,0,16"/>
 
@@ -31,7 +31,7 @@
                            Margin="4,14,4,6"/>
                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource MultilineTextBoxStyle}"/>
-                <CheckBox Content="Active" IsChecked="{Binding IsActive}" Margin="4,10"/>
+                <CheckBox Content="{DynamicResource IsActive}" IsChecked="{Binding IsActive}" Margin="4,10"/>
 
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
@@ -48,7 +48,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Button Content="{DynamicResource AddAdvertisement}" Command="{Binding AddCommand}" Margin="2"/>
+                    <Button Content="{DynamicResource AddCategory}" Command="{Binding AddCommand}" Margin="2"/>
                     <Button Content="{DynamicResource Save}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Command="{Binding UpdateCommand}"

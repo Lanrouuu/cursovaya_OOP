@@ -1,3 +1,4 @@
+using Cursovaya.Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,7 +12,7 @@ public partial class AdvertisementCardControl : UserControl
             nameof(Title),
             typeof(string),
             typeof(AdvertisementCardControl),
-            new PropertyMetadata("Без названия"),
+            new PropertyMetadata("Untitled"),
             value => value is string text && !string.IsNullOrWhiteSpace(text));
 
     public static readonly DependencyProperty PriceProperty =
@@ -42,6 +43,21 @@ public partial class AdvertisementCardControl : UserControl
 
     public static readonly DependencyProperty IsHighlightedProperty =
         DependencyProperty.Register(nameof(IsHighlighted), typeof(bool), typeof(AdvertisementCardControl), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty StatusProperty =
+        DependencyProperty.Register(nameof(Status), typeof(AdvertisementStatus), typeof(AdvertisementCardControl), new PropertyMetadata(AdvertisementStatus.Active));
+
+    public static readonly DependencyProperty ViewCountProperty =
+        DependencyProperty.Register(nameof(ViewCount), typeof(int), typeof(AdvertisementCardControl), new PropertyMetadata(0));
+
+    public static readonly DependencyProperty FavoritesCountProperty =
+        DependencyProperty.Register(nameof(FavoritesCount), typeof(int), typeof(AdvertisementCardControl), new PropertyMetadata(0));
+
+    public static readonly DependencyProperty IsFavoriteProperty =
+        DependencyProperty.Register(nameof(IsFavorite), typeof(bool), typeof(AdvertisementCardControl), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty ToggleFavoriteCommandProperty =
+        DependencyProperty.Register(nameof(ToggleFavoriteCommand), typeof(ICommand), typeof(AdvertisementCardControl), new PropertyMetadata(null));
 
     public static readonly DependencyProperty OpenCommandProperty =
         DependencyProperty.Register(nameof(OpenCommand), typeof(ICommand), typeof(AdvertisementCardControl), new PropertyMetadata(null));
@@ -125,6 +141,36 @@ public partial class AdvertisementCardControl : UserControl
     {
         get => (bool)GetValue(IsHighlightedProperty);
         set => SetValue(IsHighlightedProperty, value);
+    }
+
+    public AdvertisementStatus Status
+    {
+        get => (AdvertisementStatus)GetValue(StatusProperty);
+        set => SetValue(StatusProperty, value);
+    }
+
+    public int ViewCount
+    {
+        get => (int)GetValue(ViewCountProperty);
+        set => SetValue(ViewCountProperty, value);
+    }
+
+    public int FavoritesCount
+    {
+        get => (int)GetValue(FavoritesCountProperty);
+        set => SetValue(FavoritesCountProperty, value);
+    }
+
+    public bool IsFavorite
+    {
+        get => (bool)GetValue(IsFavoriteProperty);
+        set => SetValue(IsFavoriteProperty, value);
+    }
+
+    public ICommand? ToggleFavoriteCommand
+    {
+        get => (ICommand?)GetValue(ToggleFavoriteCommandProperty);
+        set => SetValue(ToggleFavoriteCommandProperty, value);
     }
 
     public ICommand? OpenCommand

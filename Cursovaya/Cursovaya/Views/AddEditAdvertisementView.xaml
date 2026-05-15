@@ -8,8 +8,18 @@
                 Margin="24,16"
                 Padding="32">
             <StackPanel>
-                <TextBlock Text="{Binding PageTitle}" Style="{StaticResource SectionTitleStyle}"
-                           Margin="0,0,0,6"/>
+                <TextBlock Margin="0,0,0,6">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource SectionTitleStyle}">
+                            <Setter Property="Text" Value="{DynamicResource NewAdvertisementTitle}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                    <Setter Property="Text" Value="{DynamicResource EditAdvertisementTitle}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
                 <TextBlock Text="{DynamicResource AddEditSubtitle}"
                            Style="{StaticResource PageSubtitleStyle}"
                            Margin="0,0,0,24"/>
@@ -35,8 +45,13 @@
                     <StackPanel Grid.Column="1" Margin="12,0,0,0">
                         <TextBlock Text="{DynamicResource Category}" Style="{StaticResource FieldLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding Categories}"
-                                  SelectedItem="{Binding SelectedCategory}"
-                                  DisplayMemberPath="Name"/>
+                                  SelectedItem="{Binding SelectedCategory}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, Converter={StaticResource CategoryNameConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                         <TextBlock Text="{DynamicResource Condition}" Style="{StaticResource FieldLabelStyle}" Margin="4,12,4,6"/>
                         <ComboBox ItemsSource="{Binding ConditionValues}"
                                   SelectedItem="{Binding Condition}">
@@ -61,12 +76,39 @@
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Height="120"
+                    <Border x:Name="ImageDropBorder"
+                            Height="120"
                             CornerRadius="10"
                             ClipToBounds="True"
-                            Background="{DynamicResource HoverBrush}">
-                        <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
-                               Stretch="UniformToFill"/>
+                            Background="{DynamicResource HoverBrush}"
+                            AllowDrop="True"
+                            Drop="ImageDropBorder_Drop"
+                            DragOver="ImageDropBorder_DragOver"
+                            Cursor="Hand"
+                            ToolTip="{DynamicResource DragImageHint}">
+                        <Grid>
+                            <TextBlock Text="{DynamicResource DragImageHint}"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"
+                                       Margin="8"
+                                       TextAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ImagePath}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                                   Stretch="UniformToFill"/>
+                        </Grid>
                     </Border>
                     <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                         <Button Content="{DynamicResource ChooseImage}"

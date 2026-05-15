@@ -1,3 +1,4 @@
+using Cursovaya.Services;
 using System.Windows;
 using System.Windows.Input;
 
@@ -48,8 +49,8 @@ public class RelayCommand : ICommand
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"Не удалось выполнить действие:\n{ex.Message}",
-                "Ошибка",
+                LocalizedStrings.Format("ErrorExecuteAction", ex.Message),
+                LocalizedStrings.Get("DialogErrorTitle"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }

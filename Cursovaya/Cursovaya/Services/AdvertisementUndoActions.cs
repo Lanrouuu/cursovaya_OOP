@@ -13,7 +13,7 @@ public class AddedAdvertisementAction : IUndoableAction
         _advertisementId = advertisementId;
     }
 
-    public string Name => "Добавление объявления";
+    public string Name => LocalizedStrings.Get("UndoAddAdvertisement");
 
     public async Task UndoAsync()
     {
@@ -37,7 +37,7 @@ public class DeletedAdvertisementAction : IUndoableAction
         _oldSnapshot = oldSnapshot;
     }
 
-    public string Name => "Удаление объявления";
+    public string Name => LocalizedStrings.Get("UndoDeleteAdvertisement");
 
     public async Task UndoAsync()
     {
@@ -66,7 +66,7 @@ public class EditedAdvertisementAction : IUndoableAction
         _newSnapshot = newSnapshot;
     }
 
-    public string Name => "Редактирование объявления";
+    public string Name => LocalizedStrings.Get("UndoEditAdvertisement");
 
     public async Task UndoAsync()
     {

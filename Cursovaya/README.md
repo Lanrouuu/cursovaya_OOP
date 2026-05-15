@@ -1,137 +1,215 @@
-# TradeAds: информационная система торговых объявлений
+# TradeAds — информационная система торговых объявлений
 
-Курсовой WPF-проект на C#/.NET 8. Приложение позволяет размещать и искать объявления, открывать карточку объявления и смотреть контакты продавца. Это не интернет-магазин: в проекте нет корзины, оплаты, доставки, оформления заказа и статусов покупки.
+Курсовой WPF-проект на C# / .NET 8. Доска объявлений с авторизацией, модерацией, избранным, пагинацией, Undo/Redo, темами и локализацией. Не интернет-магазин: нет корзины, оплаты и доставки.
+
+---
 
 ## Технологии
 
-- C# и .NET 8
-- WPF и XAML
-- Entity Framework Core 8
-- Microsoft SQL Server на `localhost`
-- Code First и migration `InitialCreate`
-- MVVM
-- Repository pattern и Unit of Work
-- LINQ to Entity
-- async/await
-- ResourceDictionary, темы, стили и триггеры
-- UserControl, DependencyProperty, RoutedEvent
-- ICommand, RelayCommand, RoutedUICommand
+- **Платформа:** C# 12, .NET 8, WPF
+- **БД:** Microsoft SQL Server, Entity Framework Core 8, Code First, миграции
+- **ORM:** LINQ to Entity, `IQueryable`, `async/await`
+- **Архитектура:** MVVM, Repository + Unit of Work, Service Layer
+- **UI:** ResourceDictionary, DataTemplate-навигация, UserControl, DependencyProperty, RoutedCommand
+- **Безопасность:** SHA-256 хэширование паролей, PasswordBox + attached property
+- **Email:** `System.Net.Mail.SmtpClient` (опционально через `appsettings.json`)
+- **Прочее:** CSV-экспорт, Drag & Drop, системная тема Windows через реестр
 
-## Как запустить
+---
 
-1. Проверьте, что SQL Server доступен на `localhost`.
-2. Откройте файл `Cursovaya/appsettings.json`.
-3. При необходимости измените строку подключения:
+## Быстрый старт
+
+### 1. Требования
+
+- Visual Studio 2022 (WPF / Desktop workload)
+- Microsoft SQL Server (localhost) или SQL Server Express
+
+### 2. Подключение к базе данных
+
+Откройте `Cursovaya/appsettings.json` и при необходимости измените строку:
 
 ```json
-"DefaultConnection": "Server=localhost;Database=TradeAdsDb;Trusted_Connection=True;TrustServerCertificate=True;"
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=TradeAdsDb;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+  "Smtp": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "From": "your-email@gmail.com",
+    "Password": "your-app-password"
+  }
+}
 ```
 
-4. Соберите и запустите проект:
+> **SMTP опционально.** Если `From` начинается с `your-`, письма не отправляются — приложение работает без ошибок.
 
-```powershell
-cd Cursovaya
-dotnet restore
-dotnet build
-dotnet run
-```
+### 3. Запуск
 
-При запуске приложение вызывает `Database.MigrateAsync()`: база `TradeAdsDb` создаётся автоматически, если SQL Server доступен. Если подключение не работает, приложение покажет понятное сообщение и попросит проверить имя сервера в SQL Server Management Studio.
+Откройте `Cursovaya.sln` в Visual Studio и нажмите **F5**.
 
-## Тестовые пользователи
+При запуске автоматически:
+- Применяются все миграции (`Database.MigrateAsync()`)
+- Создаётся база `TradeAdsDb` если её нет
+- Добавляются начальные данные (`DbInitializer`): пользователи, категории, объявления
 
-- Администратор: `admin@mail.com` / `admin123`
-- Пользователь: `user@mail.com` / `user123`
+---
+
+## Тестовые аккаунты
+
+| Роль | Email | Пароль |
+|------|-------|--------|
+| Администратор | `admin@mail.com` | `admin123` |
+| Пользователь | `user@mail.com` | `user123` |
+
+---
 
 ## Что реализовано
 
-- регистрация и авторизация с SHA-256 хэшированием пароля;
-- роли: гость, пользователь, администратор;
-- список активных объявлений;
-- поиск по названию, описанию, городу и имени продавца;
-- фильтры по категории, цене, городу, состоянию и дате;
-- сортировка по цене, дате и названию;
-- детальная карточка без кнопки покупки, только контакты продавца;
-- добавление, редактирование и удаление объявлений;
-- выбор изображения и копирование в `Assets/UserImages`;
-- личный кабинет с редактированием данных, темой, языком и списком своих объявлений;
-- админ-панель с пользователями, объявлениями и категориями;
-- блокировка пользователей, модерация статусов объявлений;
-- добавление, редактирование и удаление неиспользуемых категорий;
-- Undo/Redo для добавления, удаления и редактирования объявлений;
-- светлая, тёмная, оптимистичная и синяя темы;
-- русская и английская локализация через ResourceDictionary.
+### Авторизация и аккаунт
+- Регистрация: имя (2–50 симв.), email (regex), телефон (regex), пароль (мин. 6 симв.)
+- Авторизация по email + пароль (SHA-256 хэш)
+- Пароли скрыты через `PasswordBox` + `PasswordBoxHelper` (attached property)
+- Блокировка аккаунта администратором
+- Смена пароля в личном кабинете
+
+### Объявления
+- Список с пагинацией: 10 на странице, кнопки ← / →, индикатор «X / Y»
+- Полнотекстовый поиск по названию, описанию, городу, имени продавца
+- Фильтры: категория, цена от/до, город, состояние, дата, сортировка — применяются мгновенно
+- Детальная карточка: изображение, описание, контакты продавца, счётчик просмотров
+- Добавление и редактирование: все поля + выбор изображения + Drag & Drop
+- Программное удаление (Status=Deleted) с поддержкой Undo
+- Статус-бейджи на карточках: Hidden → оранжевый, Blocked → красный
+
+### Избранное
+- Кнопка ❤/♡ на каждой карточке (только для авторизованных)
+- Toggle без перезагрузки страницы, счётчик обновляется мгновенно
+- Список избранных объявлений в личном кабинете
+
+### Срок жизни объявлений
+- При создании: `ExpiresAt = now + 30 дней`
+- Автоматическое скрытие просроченных при каждом открытии списка
+- Email-предупреждение за 3 дня до истечения
+- Кнопка «Продлить» в профиле для скрытых объявлений
+
+### Счётчик просмотров
+- Поле `ViewCount` в таблице `Advertisements`
+- Инкремент при каждом открытии карточки
+- Отображается на карточке: 👁 42
+
+### Похожие объявления
+- В детальной карточке — горизонтальный скролл: до 5 из той же категории
+
+### Undo / Redo
+- Стек для добавления, редактирования и удаления объявлений
+- Кнопки в шапке, активны только при наличии действий
+- Стек не сбрасывается при навигации
+
+### Темы оформления
+- Light (светлая), Dark (тёмная), Optimistic (янтарная), Blue (синяя)
+- Определяется автоматически по системным настройкам Windows при первом запуске
+- Смена мгновенная через `DynamicResource` без перезапуска
+
+### Локализация
+- Русский и английский язык
+- Переключение мгновенное
+- 107 ключей локализации + `EnumToStringConverter` для значений enum
+
+### Администрирование
+- **Пользователи:** таблица, блокировка/разблокировка, email-уведомления
+- **Объявления:** таблица, смена статуса (Active/Hidden/Blocked), удаление, экспорт CSV
+- **Категории:** добавление, редактирование, удаление (если нет объявлений)
+- **Логи:** таблица последних 200 действий администраторов
+
+### Email-уведомления
+- Регистрация, блокировка/разблокировка аккаунта
+- Блокировка/активация объявления администратором
+- Предупреждение за 3 дня до истечения объявления
+
+### Экспорт в CSV
+- Пользователи и объявления — через `SaveFileDialog`
+- UTF-8, разделитель `;`, RFC 4180 экранирование
+
+---
 
 ## Структура проекта
 
-- `Models` — сущности БД и enum.
-- `Data` — `AppDbContext`, migration factory и начальное заполнение.
-- `Migrations` — Code First migration `InitialCreate`.
-- `Repositories` — общий репозиторий, специальные репозитории и Unit of Work.
-- `Services` — бизнес-логика регистрации, объявлений, категорий, пользователей, тем, языка и изображений.
-- `ViewModels` — состояние экранов и команды.
-- `Views` — XAML-экраны.
-- `UserControls` — карточка объявления, контакты продавца и фильтры.
-- `Resources` — стили, темы и языковые словари.
-- `Converters` — конвертеры для XAML.
-- `Commands` — пользовательские RoutedUICommand.
-- `Assets/UserImages` — локальная папка изображений объявлений.
+```
+Cursovaya/
+├── Models/                  # Сущности: User, Advertisement, Category, FavoriteAdvertisement, AppLog
+│   └── Enums/               # UserRole, AdvertisementStatus, ItemCondition
+├── Data/                    # AppDbContext, DbInitializer
+├── Migrations/              # InitialCreate, AddPerformanceAndFeatures
+├── Repositories/            # IRepository, Repository, IUnitOfWork, UnitOfWork,
+│                            # IAdvertisementRepository, AdvertisementRepository, IUserRepository
+├── Services/                # AdvertisementService, AuthService, UserService, CategoryService,
+│                            # FavoriteService, AppLogService, EmailService, ExportService,
+│                            # ImageService, ThemeService, LocalizationService,
+│                            # NavigationService, DialogService, UndoRedoService, PagedResult
+├── ViewModels/              # MainViewModel, AdvertisementsViewModel, AdvertisementCardViewModel,
+│                            # AdvertisementDetailsViewModel, AddEditAdvertisementViewModel,
+│                            # ProfileViewModel, AdminPanelViewModel, LoginViewModel,
+│                            # RegisterViewModel, UsersManagementViewModel, CategoriesViewModel
+├── Views/                   # AdvertisementsView, AdvertisementDetailsView,
+│                            # AddEditAdvertisementView, ProfileView, AdminPanelView,
+│                            # LoginView, RegisterView
+├── UserControls/            # AdvertisementCardControl, SearchFilterControl, ContactInfoControl
+├── Resources/
+│   ├── Styles.xaml          # Все стили приложения
+│   ├── Themes/              # LightTheme, DarkTheme, OptimisticTheme, BlueTheme
+│   └── Languages/           # Strings.ru-RU.xaml, Strings.en-US.xaml
+├── Converters/              # EnumToStringConverter, ImagePathConverter, NullToVisibilityConverter,
+│                            # RoleToVisibilityConverter, InitialsConverter, BooleanToHeartConverter
+├── Helpers/                 # PasswordBoxHelper (attached property для PasswordBox + MVVM)
+├── Commands/                # CustomCommands (RoutedUICommand)
+├── Assets/UserImages/       # Загруженные изображения объявлений (GUID-имена)
+├── appsettings.json         # Строка подключения, SMTP-настройки
+└── App.xaml.cs              # Инициализация: БД, сервисы, тема, главное окно
+```
+
+---
 
 ## База данных
 
-Основные таблицы:
+**5 таблиц:**
 
-- `Users`
-- `Advertisements`
-- `Categories`
-- `FavoriteAdvertisements`
-- `AppLogs`
+| Таблица | Назначение |
+|---------|-----------|
+| `Users` | Пользователи (id, имя, email, телефон, хэш пароля, роль, блокировка) |
+| `Advertisements` | Объявления (все поля, статус, ExpiresAt, ViewCount, FK на Users и Categories) |
+| `Categories` | Категории (название, описание, IsActive) |
+| `FavoriteAdvertisements` | Связь пользователь ↔ объявление (CASCADE при удалении) |
+| `AppLogs` | Журнал действий администратора |
 
-Связи:
+**Миграции:**
+1. `20260502233000_InitialCreate` — создание всех таблиц
+2. `20260515120000_AddPerformanceAndFeatures` — ExpiresAt, ViewCount, UpdatedAt, индексы на Status и CreatedAt
 
-- один пользователь имеет много объявлений;
-- одна категория имеет много объявлений;
-- избранные объявления реализованы через промежуточную таблицу;
-- удаление пользователя или категории не удаляет объявления автоматически.
+---
 
-Начальные данные добавляет `DbInitializer`: администратор, тестовый пользователь, категории и несколько объявлений.
+## Документация
 
-## Краткое объяснение блоков кода
+| Файл | Содержимое |
+|------|-----------|
+| `docs/architecture.md` | Архитектура, MVVM, навигация, Repository/UoW, жизненный цикл запроса |
+| `docs/database.md` | Схема таблиц, связи, миграции, безопасность |
+| `docs/features.md` | Полное описание всей функциональности |
+| `docs/services.md` | Справочник API всех сервисов |
+| `docs/ui.md` | UI-компоненты, UserControls, темы, локализация, стили |
+| `docs/defense.md` | Вопросы и ответы для защиты курсовой |
 
-- `Models` описывают данные предметной области: пользователь, объявление, категория, избранное и журнал действий.
-- `AppDbContext` связывает C#-классы с таблицами SQL Server и настраивает ограничения Fluent API.
-- `Repositories` дают простой общий способ получать, добавлять, менять и удалять данные.
-- `UnitOfWork` объединяет репозитории и один общий `SaveChangesAsync()`.
-- `Services` содержат правила приложения: кто может редактировать объявление, как проверить email, как удалить категорию.
-- `ViewModels` готовят данные для экранов и содержат команды кнопок.
-- `Views` только отображают интерфейс и привязываются к ViewModel через Binding.
-- `UserControls` показывают повторяемые части интерфейса и демонстрируют DependencyProperty/RoutedEvent.
-
-## Как объяснить проект на защите
-
-MVVM нужен, чтобы отделить внешний вид от логики. XAML отвечает за интерфейс, ViewModel хранит данные экрана и команды, а сервисы выполняют действия.
-
-Entity Framework нужен, чтобы работать с базой через C#-классы, а не писать SQL-запросы вручную для каждой операции.
-
-`DbContext` — это класс, который представляет подключение к базе и набор таблиц. В нём настроены связи, длины строк, обязательные поля и тип `decimal` для цены.
-
-Repository и Unit of Work нужны, чтобы ViewModel не обращалась к `DbContext` напрямую. Репозитории работают с таблицами, а Unit of Work сохраняет изменения одной операцией.
-
-Регистрация проверяет обязательные поля, email, уникальность email и хэширует пароль. Авторизация ищет пользователя по email и сравнивает хэш введённого пароля.
-
-Добавление объявления создаёт объект `Advertisement`, заполняет продавца, категорию, контакты, статус `Active` и сохраняет через сервис и Unit of Work.
-
-Поиск и фильтрация работают через LINQ to Entity: запрос постепенно дополняется условиями, а SQL выполняется только при `ToListAsync()`.
-
-Смена темы и языка работает через замену ResourceDictionary во время выполнения, поэтому приложение не нужно перезапускать.
-
-Приложение не является магазином, потому что оно не оформляет покупку. Оно только показывает объявление и контакты продавца, а дальнейшая связь проходит вне программы.
+---
 
 ## Что проверить вручную
 
-- доступность SQL Server именно по имени `localhost`;
-- создание базы `TradeAdsDb` при первом запуске;
-- вход под тестовыми аккаунтами;
-- добавление объявления с изображением;
-- смену темы и языка в личном кабинете;
-- модерацию объявлений в админ-панели.
+- Доступность SQL Server по имени `localhost`
+- Вход под тестовыми аккаунтами
+- Добавление объявления с загрузкой изображения через диалог
+- Добавление объявления перетаскиванием файла на превью (Drag & Drop)
+- Переключение темы и языка в личном кабинете
+- Добавление в избранное (❤ / ♡) без перезагрузки страницы
+- Пагинация при наличии более 10 объявлений
+- Undo/Redo для добавления и удаления объявления
+- Модерация в админ-панели: смена статуса, блокировка пользователя
+- Экспорт пользователей и объявлений в CSV

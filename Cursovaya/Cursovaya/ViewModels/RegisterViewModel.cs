@@ -86,7 +86,7 @@ public class RegisterViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            _dialogService.ShowError($"Не удалось зарегистрироваться: {ex.Message}");
+            _dialogService.ShowError(LocalizedStrings.Format("ErrorRegisterFailed", ex.Message));
         }
     }
 }
