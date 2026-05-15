@@ -359,6 +359,12 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Margin" Value="4,0,4,4"/>
     </Style>
+    <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="4,0,4,6"/>
+    </Style>
     <Style x:Key="FilterFieldPanelStyle" TargetType="StackPanel">
         <Setter Property="Margin" Value="0,0,10,8"/>
     </Style>

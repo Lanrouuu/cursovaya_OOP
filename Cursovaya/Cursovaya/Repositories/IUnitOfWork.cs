@@ -13,4 +13,5 @@ public interface IUnitOfWork : IDisposable
 
     Task<int> SaveChangesAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
+    void Detach(object entity);
 }

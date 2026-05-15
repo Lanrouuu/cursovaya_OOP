@@ -5,6 +5,7 @@ using Cursovaya.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Cursovaya;
 
@@ -13,6 +14,8 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
@@ -73,5 +76,21 @@ public partial class App : Application
 
         window.Show();
         await mainViewModel.ShowAdvertisementsAsync();
+    }
+
+    private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        MessageBox.Show(
+            $"Произошла ошибка:\n{e.Exception.Message}",
+            "Ошибка приложения",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error);
+
+        e.Handled = true;
+    }
+
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        e.SetObserved();
     }
 }

@@ -1,5 +1,6 @@
 using Cursovaya.Data;
 using Cursovaya.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Cursovaya.Repositories;
@@ -32,6 +33,11 @@ public class UnitOfWork : IUnitOfWork
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
         return await _context.Database.BeginTransactionAsync();
+    }
+
+    public void Detach(object entity)
+    {
+        _context.Entry(entity).State = EntityState.Detached;
     }
 
     public void Dispose()

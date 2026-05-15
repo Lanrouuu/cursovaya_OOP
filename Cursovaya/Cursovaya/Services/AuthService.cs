@@ -1,5 +1,6 @@
 using Cursovaya.Models;
 using Cursovaya.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace Cursovaya.Services;
@@ -21,13 +22,16 @@ public class AuthService
 
     public async Task<ServiceResult<User>> LoginAsync(string email, string password)
     {
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        var normalizedEmail = email?.Trim() ?? string.Empty;
+        var normalizedPassword = password ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(normalizedEmail) || string.IsNullOrWhiteSpace(normalizedPassword))
         {
             return ServiceResult<User>.Fail("Введите email и пароль.");
         }
 
-        var user = await _unitOfWork.Users.GetByEmailAsync(email);
-        if (user == null || !PasswordService.VerifyPassword(password, user.PasswordHash))
+        var user = await _unitOfWork.Users.GetByEmailAsync(normalizedEmail);
+        if (user == null || !PasswordService.VerifyPassword(normalizedPassword, user.PasswordHash))
         {
             return ServiceResult<User>.Fail("Неверный email или пароль.");
         }
@@ -49,7 +53,18 @@ public class AuthService
         string password,
         string confirmPassword)
     {
-        var validation = await ValidateRegistrationAsync(userName, email, phone, password, confirmPassword);
+        var normalizedUserName = userName?.Trim() ?? string.Empty;
+        var normalizedEmail = email?.Trim() ?? string.Empty;
+        var normalizedPhone = phone?.Trim() ?? string.Empty;
+        var normalizedPassword = password ?? string.Empty;
+        var normalizedConfirmPassword = confirmPassword ?? string.Empty;
+
+        var validation = await ValidateRegistrationAsync(
+            normalizedUserName,
+            normalizedEmail,
+            normalizedPhone,
+            normalizedPassword,
+            normalizedConfirmPassword);
         if (!validation.IsSuccess)
         {
             return ServiceResult<User>.Fail(validation.ErrorMessage);
@@ -57,16 +72,24 @@ public class AuthService
 
         var user = new User
         {
-            UserName = userName.Trim(),
-            Email = email.Trim(),
-            PhoneNumber = phone.Trim(),
-            PasswordHash = PasswordService.HashPassword(password),
+            UserName = normalizedUserName,
+            Email = normalizedEmail,
+            PhoneNumber = normalizedPhone,
+            PasswordHash = PasswordService.HashPassword(normalizedPassword),
             Role = UserRole.User,
             CreatedAt = DateTime.Now
         };
 
-        await _unitOfWork.Users.AddAsync(user);
-        await _unitOfWork.SaveChangesAsync();
+        try
+        {
+            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            _unitOfWork.Detach(user);
+            return ServiceResult<User>.Fail("Не удалось создать пользователя. Проверьте, что email не занят, и попробуйте еще раз.");
+        }
 
         CurrentUser = user;
         CurrentUserChanged?.Invoke();

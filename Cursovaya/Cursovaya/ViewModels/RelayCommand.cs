@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Input;
 
 namespace Cursovaya.ViewModels;
@@ -43,6 +44,14 @@ public class RelayCommand : ICommand
             _isExecuting = true;
             RaiseCanExecuteChanged();
             await _executeAsync(parameter);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Не удалось выполнить действие:\n{ex.Message}",
+                "Ошибка",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
         finally
         {
