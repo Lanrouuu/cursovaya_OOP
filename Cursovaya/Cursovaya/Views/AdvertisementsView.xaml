@@ -105,17 +105,18 @@
                     <ItemsControl ItemsSource="{Binding Advertisements}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <userControls:AdvertisementCardControl
-                                    Title="{Binding Advertisement.Title}"
-                                    ShortDescription="{Binding Advertisement.ShortDescription}"
-                                    Price="{Binding Advertisement.Price}"
-                                    ImagePath="{Binding Advertisement.ImagePath}"
-                                    City="{Binding Advertisement.City}"
-                                    Status="{Binding Advertisement.Status}"
-                                    ViewCount="{Binding ViewCount}"
-                                    FavoritesCount="{Binding FavoritesCount}"
-                                    CategoryName="{Binding Advertisement.Category.Name}"
-                                    SellerName="{Binding Advertisement.User.UserName}"
+                                 <userControls:AdvertisementCardControl
+                                     Title="{Binding Title}"
+                                     ShortDescription="{Binding ShortDescription}"
+                                     Price="{Binding Advertisement.Price}"
+                                     ImagePath="{Binding Advertisement.ImagePath}"
+                                     City="{Binding City}"
+                                     Status="{Binding Advertisement.Status}"
+                                     Condition="{Binding Condition}"
+                                     ViewCount="{Binding ViewCount}"
+                                     FavoritesCount="{Binding FavoritesCount}"
+                                     CategoryName="{Binding CategoryName}"
+                                     SellerName="{Binding SellerName}"
                                     CreatedAt="{Binding Advertisement.CreatedAt}"
                                     IsFavorite="{Binding IsFavorite}"
                                     ToggleFavoriteCommand="{Binding ToggleFavoriteCommand}"

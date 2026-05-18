@@ -28,7 +28,7 @@
     <SolidColorBrush x:Key="DividerBrush" Color="#34445C"/>
     <SolidColorBrush x:Key="GlassBrush" Color="#182235CC"/>
     <SolidColorBrush x:Key="NavigationActiveBrush" Color="#4F8CFF"/>
-    <SolidColorBrush x:Key="NavigationHoverBrush" Color="#24324A"/>
+    <SolidColorBrush x:Key="NavigationHoverBrush" Color="#2A3A54"/>
     <SolidColorBrush x:Key="HeaderTextBrush" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="HeaderMutedBrush" Color="#C7D2FE"/>
     <SolidColorBrush x:Key="HeaderAccentBrush" Color="#60A5FA"/>
@@ -37,4 +37,14 @@
     <SolidColorBrush x:Key="BtnSecondaryBorder" Color="#64748B"/>
     <SolidColorBrush x:Key="InputBorderBrush" Color="#53657F"/>
     <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#4F8CFF"/>
+
+    <!-- Calendar popup (system keys used by default Calendar template) -->
+    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#182235"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#182235"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#4F8CFF"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#24324A"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#F8FAFC"/>
 </ResourceDictionary>

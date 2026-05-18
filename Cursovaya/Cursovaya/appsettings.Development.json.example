@@ -1,0 +1,10 @@
+{
+  "Smtp": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "From": "you@gmail.com",
+    "Password": "xxxx xxxx xxxx xxxx",
+    "DisplayName": "TradeAds",
+    "EnableSsl": true
+  }
+}

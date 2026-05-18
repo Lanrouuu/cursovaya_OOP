@@ -295,6 +295,18 @@ public class AdvertisementService
         var oldSnapshot = CloneAdvertisement(advertisement);
         await SetStatusInternalAsync(advertisementId, AdvertisementStatus.Deleted);
 
+        if (currentUser?.Role == UserRole.Admin)
+        {
+            await _unitOfWork.AppLogs.AddAsync(new AppLog
+            {
+                Action = "DeleteAdvertisement",
+                Description = LocalizedStrings.Format("LogAdvertisementDeleted", advertisementId),
+                AdminUserId = currentUser.Id,
+                CreatedAt = DateTime.Now
+            });
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         if (registerUndo)
         {
             _undoRedoService.AddAction(new DeletedAdvertisementAction(this, oldSnapshot));

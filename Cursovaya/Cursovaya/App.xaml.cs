@@ -22,6 +22,8 @@ public partial class App : Application
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
             .Build();
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -56,7 +58,6 @@ public partial class App : Application
         var appLogService = new AppLogService(unitOfWork);
         var dialogService = new DialogService();
         var themeService = new ThemeService();
-        var localizationService = new LocalizationService();
         var imageService = new ImageService();
         var exportService = new ExportService();
         var navigationService = new NavigationService();
@@ -73,7 +74,6 @@ public partial class App : Application
             appLogService,
             dialogService,
             themeService,
-            localizationService,
             imageService,
             exportService,
             undoRedoService,

@@ -4,6 +4,7 @@ public class ServiceResult
 {
     public bool IsSuccess { get; set; }
     public string ErrorMessage { get; set; } = string.Empty;
+    public string? WarningMessage { get; set; }
 
     public static ServiceResult Success()
     {
@@ -20,9 +21,9 @@ public class ServiceResult<T> : ServiceResult
 {
     public T? Data { get; set; }
 
-    public static ServiceResult<T> Success(T data)
+    public static ServiceResult<T> Success(T data, string? warningMessage = null)
     {
-        return new ServiceResult<T> { IsSuccess = true, Data = data };
+        return new ServiceResult<T> { IsSuccess = true, Data = data, WarningMessage = warningMessage };
     }
 
     public new static ServiceResult<T> Fail(string message)

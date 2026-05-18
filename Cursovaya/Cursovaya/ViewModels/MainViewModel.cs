@@ -14,7 +14,6 @@ public class MainViewModel : ViewModelBase
     private readonly AppLogService _appLogService;
     private readonly DialogService _dialogService;
     private readonly ThemeService _themeService;
-    private readonly LocalizationService _localizationService;
     private readonly ImageService _imageService;
     private readonly ExportService _exportService;
     private readonly UndoRedoService _undoRedoService;
@@ -22,7 +21,6 @@ public class MainViewModel : ViewModelBase
 
     private ViewModelBase? _currentViewModel;
     private string _selectedTheme;
-    private OptionItem _selectedLanguage;
     private string _currentPage = "Advertisements";
 
     public MainViewModel(
@@ -34,7 +32,6 @@ public class MainViewModel : ViewModelBase
         AppLogService appLogService,
         DialogService dialogService,
         ThemeService themeService,
-        LocalizationService localizationService,
         ImageService imageService,
         ExportService exportService,
         UndoRedoService undoRedoService,
@@ -48,19 +45,12 @@ public class MainViewModel : ViewModelBase
         _appLogService = appLogService;
         _dialogService = dialogService;
         _themeService = themeService;
-        _localizationService = localizationService;
         _imageService = imageService;
         _exportService = exportService;
         _undoRedoService = undoRedoService;
         _navigationService = navigationService;
         _selectedTheme = _themeService.CurrentTheme;
         Themes = new ObservableCollection<string>(_themeService.Themes);
-        Languages = new ObservableCollection<OptionItem>
-        {
-            new() { Title = "RU", Value = "ru-RU" },
-            new() { Title = "EN", Value = "en-US" }
-        };
-        _selectedLanguage = Languages[0];
 
         NavigateAdvertisementsCommand = new RelayCommand(async _ => await ShowAdvertisementsAsync());
         NavigateLoginCommand = new RelayCommand(_ => ShowLogin());
@@ -95,7 +85,6 @@ public class MainViewModel : ViewModelBase
     public bool CanUndo => _undoRedoService.CanUndo;
     public bool CanRedo => _undoRedoService.CanRedo;
     public ObservableCollection<string> Themes { get; }
-    public ObservableCollection<OptionItem> Languages { get; }
 
     public string SelectedTheme
     {
@@ -106,24 +95,6 @@ public class MainViewModel : ViewModelBase
             if (SetProperty(ref _selectedTheme, themeName))
             {
                 _themeService.ApplyTheme(themeName);
-            }
-        }
-    }
-
-    public OptionItem SelectedLanguage
-    {
-        get => _selectedLanguage;
-        set
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            if (SetProperty(ref _selectedLanguage, value))
-            {
-                _localizationService.ApplyLanguage(value.Value);
-                OnPropertyChanged(nameof(CurrentUserName));
             }
         }
     }
@@ -181,8 +152,6 @@ public class MainViewModel : ViewModelBase
             _userService,
             _advertisementService,
             _favoriteService,
-            _themeService,
-            _localizationService,
             _dialogService,
             OpenAddEditAdvertisementAsync);
 

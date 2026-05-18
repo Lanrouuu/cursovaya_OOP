@@ -72,7 +72,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentPage}" Value="Advertisements">
                                         <Setter Property="Opacity" Value="1"/>
-                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                        <Setter Property="Background" Value="{DynamicResource HeaderPillBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -85,7 +85,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentPage}" Value="Login">
                                         <Setter Property="Opacity" Value="1"/>
-                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                        <Setter Property="Background" Value="{DynamicResource HeaderPillBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -98,7 +98,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentPage}" Value="Register">
                                         <Setter Property="Opacity" Value="1"/>
-                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                        <Setter Property="Background" Value="{DynamicResource HeaderPillBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -111,7 +111,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentPage}" Value="Profile">
                                         <Setter Property="Opacity" Value="1"/>
-                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                        <Setter Property="Background" Value="{DynamicResource HeaderPillBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -124,7 +124,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentPage}" Value="Admin">
                                         <Setter Property="Opacity" Value="1"/>
-                                        <Setter Property="Background" Value="#FFFFFF22"/>
+                                        <Setter Property="Background" Value="{DynamicResource HeaderPillBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -147,24 +147,13 @@
                             <Run Text="{Binding CurrentUserName, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
-                    <ComboBox ItemsSource="{Binding Themes}"
-                              SelectedItem="{Binding SelectedTheme}"
-                              Width="120"
-                              Style="{StaticResource HeaderComboBoxStyle}"
-                              ToolTip="{DynamicResource Theme}"/>
                     <Button Content="{DynamicResource Undo}"
                              Command="{Binding UndoCommand}"
                              Style="{StaticResource HeaderButtonStyle}"/>
                      <Button Content="{DynamicResource Redo}"
                              Command="{Binding RedoCommand}"
                              Style="{StaticResource HeaderButtonStyle}"/>
-                    <ComboBox ItemsSource="{Binding Languages}"
-                              SelectedItem="{Binding SelectedLanguage}"
-                              DisplayMemberPath="Title"
-                              Width="68"
-                              Style="{StaticResource HeaderComboBoxStyle}"
-                              ToolTip="{DynamicResource Language}"/>
-                    <Border Width="1" Background="#FFFFFF20" Height="24" Margin="4,0"/>
+                    <ComboBox Visibility="Collapsed"/>
                     <Button Content="{DynamicResource Logout}"
                             Command="{Binding LogoutCommand}"
                             Style="{StaticResource HeaderButtonStyle}"/>

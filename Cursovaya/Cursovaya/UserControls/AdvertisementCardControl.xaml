@@ -100,7 +100,10 @@
 
                 <WrapPanel>
                     <Border Style="{StaticResource TagStyle}">
-                        <TextBlock Text="{Binding CategoryName, ElementName=Root, Converter={StaticResource CategoryNameConverter}}" FontSize="13"/>
+                        <TextBlock Text="{Binding CategoryName, ElementName=Root}" FontSize="13"/>
+                    </Border>
+                    <Border Style="{StaticResource TagStyle}">
+                        <TextBlock Text="{Binding Condition, ElementName=Root, Converter={StaticResource EnumToStringConverter}}" FontSize="13"/>
                     </Border>
                     <Border Style="{StaticResource TagStyle}">
                         <TextBlock>
@@ -156,7 +159,7 @@
 
                 <!-- Stats row -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-                    <TextBlock FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Margin="0,0,8,0">
+                    <TextBlock FontSize="14" Foreground="{DynamicResource MutedTextBrush}" Margin="0,0,8,0">
                         <Run Text="👁"/>
                         <Run Text="{Binding ViewCount, ElementName=Root}"/>
                     </TextBlock>
@@ -166,7 +169,7 @@
                             Padding="0"
                             Cursor="Hand"
                             ToolTip="{DynamicResource FavoriteTooltip}">
-                        <TextBlock FontSize="11">
+                        <TextBlock FontSize="14">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>

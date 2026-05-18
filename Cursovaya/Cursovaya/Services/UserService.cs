@@ -100,7 +100,7 @@ public class UserService
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult> SetBlockedAsync(User user, bool isBlocked)
+    public async Task<ServiceResult> SetBlockedAsync(User user, bool isBlocked, User? admin)
     {
         var existing = await _unitOfWork.Users.GetByIdAsync(user.Id);
         if (existing == null)
@@ -116,6 +116,20 @@ public class UserService
         existing.IsBlocked = isBlocked;
         _unitOfWork.Users.Update(existing);
         await _unitOfWork.SaveChangesAsync();
+
+        if (admin?.Role == UserRole.Admin)
+        {
+            await _unitOfWork.AppLogs.AddAsync(new AppLog
+            {
+                Action = isBlocked ? "BlockUser" : "UnblockUser",
+                Description = isBlocked
+                    ? LocalizedStrings.Format("LogUserBlocked", existing.Id)
+                    : LocalizedStrings.Format("LogUserUnblocked", existing.Id),
+                AdminUserId = admin.Id,
+                CreatedAt = DateTime.Now
+            });
+            await _unitOfWork.SaveChangesAsync();
+        }
 
         if (isBlocked)
             _ = _emailService.SendAccountBlockedAsync(existing.Email, existing.UserName);

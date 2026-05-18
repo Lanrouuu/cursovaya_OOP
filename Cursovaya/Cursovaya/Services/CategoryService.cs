@@ -23,7 +23,7 @@ public class CategoryService
         return categories.OrderBy(x => x.Name).ToList();
     }
 
-    public async Task<ServiceResult> AddAsync(string name, string description)
+    public async Task<ServiceResult> AddAsync(string name, string description, User? admin)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -43,10 +43,11 @@ public class CategoryService
         });
 
         await _unitOfWork.SaveChangesAsync();
+        await WriteLogAsync(admin, "AddCategory", LocalizedStrings.Format("LogCategoryAdded", name.Trim()));
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult> UpdateAsync(Category category)
+    public async Task<ServiceResult> UpdateAsync(Category category, User? admin)
     {
         if (string.IsNullOrWhiteSpace(category.Name))
         {
@@ -70,10 +71,11 @@ public class CategoryService
         existing.IsActive = category.IsActive;
         _unitOfWork.Categories.Update(existing);
         await _unitOfWork.SaveChangesAsync();
+        await WriteLogAsync(admin, "UpdateCategory", LocalizedStrings.Format("LogCategoryUpdated", existing.Name));
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult> DeleteAsync(Category category)
+    public async Task<ServiceResult> DeleteAsync(Category category, User? admin)
     {
         await using var transaction = await _unitOfWork.BeginTransactionAsync();
 
@@ -91,6 +93,24 @@ public class CategoryService
         _unitOfWork.Categories.Delete(existing);
         await _unitOfWork.SaveChangesAsync();
         await transaction.CommitAsync();
+        await WriteLogAsync(admin, "DeleteCategory", LocalizedStrings.Format("LogCategoryDeleted", existing.Name));
         return ServiceResult.Success();
+    }
+
+    private async Task WriteLogAsync(User? admin, string action, string description)
+    {
+        if (admin?.Role != UserRole.Admin)
+        {
+            return;
+        }
+
+        await _unitOfWork.AppLogs.AddAsync(new AppLog
+        {
+            Action = action,
+            Description = description,
+            AdminUserId = admin.Id,
+            CreatedAt = DateTime.Now
+        });
+        await _unitOfWork.SaveChangesAsync();
     }
 }

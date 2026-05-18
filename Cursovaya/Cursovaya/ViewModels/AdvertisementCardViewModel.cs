@@ -17,6 +17,14 @@ public class AdvertisementCardViewModel : ViewModelBase
 
     public Advertisement Advertisement { get; }
 
+    public string Title => Advertisement.Title;
+    public string ShortDescription => Advertisement.ShortDescription;
+    public string City => Advertisement.City;
+    public string SellerName => Advertisement.User?.UserName ?? "";
+    public string CategoryName => Advertisement.Category?.Name ?? "";
+    public int ViewCount => Advertisement.ViewCount;
+    public ItemCondition Condition => Advertisement.Condition;
+
     public bool IsFavorite
     {
         get => _isFavorite;
@@ -28,8 +36,6 @@ public class AdvertisementCardViewModel : ViewModelBase
         get => _favoritesCount;
         set => SetProperty(ref _favoritesCount, value);
     }
-
-    public int ViewCount => Advertisement.ViewCount;
 
     public RelayCommand ToggleFavoriteCommand { get; }
 }

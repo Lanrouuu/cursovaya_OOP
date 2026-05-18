@@ -82,6 +82,11 @@ public class RegisterViewModel : ViewModelBase
             }
 
             ErrorMessage = string.Empty;
+            if (!string.IsNullOrWhiteSpace(result.WarningMessage))
+            {
+                _dialogService.ShowMessage(result.WarningMessage);
+            }
+
             await _afterRegister();
         }
         catch (Exception ex)

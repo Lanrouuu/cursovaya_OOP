@@ -7,12 +7,11 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Page Header -->
-        <StackPanel Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="{DynamicResource NavProfile}"
                        Style="{StaticResource SectionTitleStyle}"
                        Margin="4,0,4,2"/>
@@ -22,279 +21,273 @@
         </StackPanel>
 
         <!-- Profile cards row -->
-        <Grid Grid.Row="1" Margin="0,0,0,20">
+        <Grid Grid.Row="1" Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="1.35*"/>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="0.85*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Profile info -->
-            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0">
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0"
+                    Padding="18"
+                    VerticalAlignment="Top">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="64"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Width="64"
-                            Height="64"
-                            CornerRadius="32"
+                    <Border Width="52"
+                            Height="52"
+                            CornerRadius="26"
                             Background="{DynamicResource AccentBrush}"
                             VerticalAlignment="Top"
                             Effect="{StaticResource ButtonShadow}">
                         <TextBlock Text="{Binding UserName, Converter={StaticResource InitialsConverter}}"
                                    Foreground="{DynamicResource AccentTextBrush}"
                                    FontWeight="Bold"
-                                   FontSize="20"
+                                   FontSize="18"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
 
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="{DynamicResource ProfileUserBlock}"
-                                   FontSize="20"
+                                   FontSize="18"
                                    FontWeight="Bold"
-                                   Margin="0,0,0,14"/>
+                                   Margin="0,0,0,10"/>
 
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource UserName}" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource Phone}" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="{DynamicResource PhonePlaceholder}"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource Email}" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
+                                   Margin="0,0,0,6"
+                                   FontSize="12"/>
+
+                        <Button Content="{DynamicResource Save}"
+                                Command="{Binding SaveProfileCommand}"
+                                HorizontalAlignment="Left"
+                                MinWidth="120"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Password + activity -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                <Border Style="{StaticResource CardBorderStyle}" Margin="0" Padding="18">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource ChangePassword}"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,10"/>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="{DynamicResource CurrentPassword}" Style="{StaticResource FieldLabelStyle}"/>
+                            <PasswordBox Style="{StaticResource WatermarkPasswordBoxStyle}"
+                                         h:PasswordBoxHelper.BoundPassword="{Binding CurrentPassword, Mode=TwoWay}"
+                                         Tag="{DynamicResource PasswordPlaceholder}"/>
+                        </StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                <TextBlock Text="{DynamicResource NewPassword}" Style="{StaticResource FieldLabelStyle}"/>
+                                <PasswordBox Style="{StaticResource WatermarkPasswordBoxStyle}"
+                                             h:PasswordBoxHelper.BoundPassword="{Binding NewPassword, Mode=TwoWay}"
+                                             Tag="{DynamicResource PasswordPlaceholder}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <TextBlock Text="{DynamicResource ConfirmNewPassword}" Style="{StaticResource FieldLabelStyle}"/>
+                                <PasswordBox Style="{StaticResource WatermarkPasswordBoxStyle}"
+                                             h:PasswordBoxHelper.BoundPassword="{Binding ConfirmNewPassword, Mode=TwoWay}"
+                                             Tag="{DynamicResource ConfirmPasswordPlaceholder}"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="{Binding PasswordErrorMessage}"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   Visibility="{Binding PasswordErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
+                                   Margin="4,0,4,0"
+                                   FontSize="12"/>
+                        <Button Content="{DynamicResource ChangePassword}"
+                                Command="{Binding ChangePasswordCommand}"
+                                HorizontalAlignment="Left"
+                                MinWidth="180"
+                                Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardBorderStyle}" Margin="0,12,0,0" Padding="18">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Activity}"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Margin="0,0,10,12">
-                                <TextBlock Text="{DynamicResource UserName}" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1" Margin="0,0,0,12">
-                                <TextBlock Text="{DynamicResource Phone}" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,12">
-                                <TextBlock Text="{DynamicResource Email}" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
+                            <Border Grid.Column="0"
+                                    Background="{DynamicResource AccentLightBrush}"
+                                    CornerRadius="10"
+                                    Padding="10,8"
+                                    Margin="0,0,6,0">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding MyAdvertisements.Count, Mode=OneWay}"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource MyAdvertisements}"
+                                               Style="{StaticResource MutedTextStyle}"
+                                               FontSize="11"
+                                               TextAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource AccentLightBrush}"
+                                    CornerRadius="10"
+                                    Padding="10,8"
+                                    Margin="6,0,0,0">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding FavoriteAdvertisements.Count, Mode=OneWay}"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource MyFavorites}"
+                                               Style="{StaticResource MutedTextStyle}"
+                                               FontSize="11"
+                                               TextAlignment="Center"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
                         </Grid>
-
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   Foreground="{DynamicResource DangerBrush}"
-                                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
-                                   Margin="4,0,4,8"
-                                   FontSize="13"/>
-
-                        <Button Content="{DynamicResource Save}"
-                                Command="{Binding SaveProfileCommand}"
-                                HorizontalAlignment="Left"
-                                MinWidth="140"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Interface settings -->
-            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource InterfaceSettings}"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               Margin="0,0,0,16"/>
-
-                    <TextBlock Text="{DynamicResource Theme}" Style="{StaticResource FieldLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding Themes}"
-                              SelectedItem="{Binding SelectedTheme}"
-                              Margin="4,0,4,16"/>
-
-                    <TextBlock Text="{DynamicResource Language}" Style="{StaticResource FieldLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding Languages}"
-                              SelectedItem="{Binding SelectedLanguage}"
-                              DisplayMemberPath="Title"
-                              Margin="4,0,4,16"/>
-
-                    <Border Background="{DynamicResource AccentLightBrush}"
-                            CornerRadius="10"
-                            Padding="14,10"
-                            Margin="4,4,4,0">
-                        <TextBlock Text="{DynamicResource SettingsHint}"
+                        <TextBlock Text="{DynamicResource ProfileAdsHint}"
                                    Style="{StaticResource MutedTextStyle}"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </Border>
-                </StackPanel>
-            </Border>
-
-            <!-- Activity stats -->
-            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="0">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Activity}"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               Margin="0,0,0,16"/>
-                    <Border Background="{DynamicResource AccentLightBrush}"
-                            CornerRadius="12"
-                            Padding="16,14"
-                            Margin="0,0,0,12">
-                        <StackPanel>
-                            <TextBlock Text="{Binding MyAdvertisements.Count, Mode=OneWay}"
-                                       Style="{StaticResource StatNumberStyle}"/>
-                            <TextBlock Text="{DynamicResource MyAdvertisements}"
-                                       Style="{StaticResource MutedTextStyle}"
-                                       FontSize="14"/>
-                        </StackPanel>
-                    </Border>
-                    <TextBlock Text="{DynamicResource ProfileAdsHint}"
-                               Style="{StaticResource MutedTextStyle}"
-                               FontSize="13"
-                               LineHeight="20"/>
-                </StackPanel>
-            </Border>
+                                   FontSize="11"
+                                   LineHeight="15"
+                                   TextWrapping="Wrap"
+                                   Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Grid>
 
-        <!-- Change password card -->
-        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,20">
-            <StackPanel>
-                <TextBlock Text="{DynamicResource ChangePassword}"
-                           FontSize="20" FontWeight="Bold" Margin="0,0,0,16"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Margin="0,0,10,0">
-                        <TextBlock Text="{DynamicResource CurrentPassword}" Style="{StaticResource FieldLabelStyle}"/>
-                        <PasswordBox Style="{StaticResource WatermarkPasswordBoxStyle}"
-                                     h:PasswordBoxHelper.BoundPassword="{Binding CurrentPassword, Mode=TwoWay}"
-                                     Tag="{DynamicResource PasswordPlaceholder}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                        <TextBlock Text="{DynamicResource NewPassword}" Style="{StaticResource FieldLabelStyle}"/>
-                        <PasswordBox Style="{StaticResource WatermarkPasswordBoxStyle}"
-                                     h:PasswordBoxHelper.BoundPassword="{Binding NewPassword, Mode=TwoWay}"
-                                     Tag="{DynamicResource PasswordPlaceholder}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource ConfirmNewPassword}" Style="{StaticResource FieldLabelStyle}"/>
-                        <PasswordBox Style="{StaticResource WatermarkPasswordBoxStyle}"
-                                     h:PasswordBoxHelper.BoundPassword="{Binding ConfirmNewPassword, Mode=TwoWay}"
-                                     Tag="{DynamicResource ConfirmPasswordPlaceholder}"/>
-                    </StackPanel>
-                </Grid>
-                <TextBlock Text="{Binding PasswordErrorMessage}"
-                           Foreground="{DynamicResource DangerBrush}"
-                           Visibility="{Binding PasswordErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
-                           Margin="4,10,4,0" FontSize="13"/>
-                <Button Content="{DynamicResource ChangePassword}"
-                        Command="{Binding ChangePasswordCommand}"
-                        HorizontalAlignment="Left"
-                        MinWidth="200"
-                        Margin="0,14,0,0"/>
-            </StackPanel>
-        </Border>
-
         <!-- My Advertisements table + Favorites -->
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-        <StackPanel>
-        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
-            <DockPanel>
-                <TextBlock Text="{DynamicResource MyAdvertisements}"
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                    <DockPanel>
+                        <TextBlock Text="{DynamicResource MyAdvertisements}"
                            FontSize="20"
                            FontWeight="Bold"
                            DockPanel.Dock="Top"
                            Margin="0,0,0,14"/>
-                <DataGrid ItemsSource="{Binding MyAdvertisements}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="{DynamicResource Title}" Binding="{Binding Title}" Width="2*"/>
-                        <DataGridTextColumn Header="{DynamicResource Price}" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource Category}" Binding="{Binding Category.Name, Converter={StaticResource CategoryNameConverter}}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource City}" Binding="{Binding City}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource Status}" Binding="{Binding Status, Converter={StaticResource EnumToStringConverter}}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource ExpiresAt}" Binding="{Binding ExpiresAt, StringFormat={}{0:dd.MM.yyyy}}" Width="*"/>
-                        <DataGridTemplateColumn Header="{DynamicResource Edit}" Width="Auto">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="{DynamicResource Edit}"
+                        <DataGrid ItemsSource="{Binding MyAdvertisements}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{DynamicResource Title}" Binding="{Binding Title}" Width="2*"/>
+                                <DataGridTextColumn Header="{DynamicResource Price}" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Category}" Binding="{Binding Category.Name}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource City}" Binding="{Binding City}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Status}" Binding="{Binding Status, Converter={StaticResource EnumToStringConverter}}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource ExpiresAt}" Binding="{Binding ExpiresAt, StringFormat={}{0:dd.MM.yyyy}}" Width="*"/>
+                                <DataGridTemplateColumn Header="{DynamicResource Edit}" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{DynamicResource Edit}"
                                             Style="{StaticResource SmallSecondaryButtonStyle}"
                                             Command="{Binding DataContext.EditAdvertisementCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                             CommandParameter="{Binding}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="{DynamicResource Renew}" Width="Auto">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="{DynamicResource Renew}"
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="{DynamicResource Renew}" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{DynamicResource Renew}"
                                             Command="{Binding DataContext.RenewAdvertisementCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                             CommandParameter="{Binding}">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource SmallButtonStyle}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:AdvertisementStatus.Hidden}">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
-        </Border>
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource SmallButtonStyle}">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="{x:Static models:AdvertisementStatus.Hidden}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </Border>
 
-        <!-- Favorites -->
-        <Border Style="{StaticResource CardBorderStyle}" Margin="0">
-            <StackPanel>
-                <TextBlock Text="{DynamicResource MyFavorites}"
+                <!-- Favorites -->
+                <Border Style="{StaticResource CardBorderStyle}" Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource MyFavorites}"
                            FontSize="20" FontWeight="Bold" Margin="0,0,0,14"/>
 
-                <!-- Empty state -->
-                <TextBlock Text="{DynamicResource NoFavorites}"
+                        <!-- Empty state -->
+                        <TextBlock Text="{DynamicResource NoFavorites}"
                            FontSize="14"
                            Margin="4,0,4,0">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding FavoriteAdvertisements.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-
-                <DataGrid ItemsSource="{Binding FavoriteAdvertisements}">
-                    <DataGrid.Style>
-                        <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding FavoriteAdvertisements.Count}" Value="0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.Style>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="{DynamicResource Title}" Binding="{Binding Title}" Width="2*"/>
-                        <DataGridTextColumn Header="{DynamicResource Price}" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource Category}" Binding="{Binding Category.Name, Converter={StaticResource CategoryNameConverter}}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource City}" Binding="{Binding City}" Width="*"/>
-                        <DataGridTextColumn Header="{DynamicResource Seller}" Binding="{Binding User.UserName}" Width="*"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FavoriteAdvertisements.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <DataGrid ItemsSource="{Binding FavoriteAdvertisements}">
+                            <DataGrid.Style>
+                                <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FavoriteAdvertisements.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.Style>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{DynamicResource Title}" Binding="{Binding Title}" Width="2*"/>
+                                <DataGridTextColumn Header="{DynamicResource Price}" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Category}" Binding="{Binding Category.Name}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource City}" Binding="{Binding City}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Seller}" Binding="{Binding User.UserName}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </Border>
-        </StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

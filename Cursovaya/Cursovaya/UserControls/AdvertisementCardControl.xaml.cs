@@ -47,6 +47,9 @@ public partial class AdvertisementCardControl : UserControl
     public static readonly DependencyProperty StatusProperty =
         DependencyProperty.Register(nameof(Status), typeof(AdvertisementStatus), typeof(AdvertisementCardControl), new PropertyMetadata(AdvertisementStatus.Active));
 
+    public static readonly DependencyProperty ConditionProperty =
+        DependencyProperty.Register(nameof(Condition), typeof(ItemCondition), typeof(AdvertisementCardControl), new PropertyMetadata(ItemCondition.Used));
+
     public static readonly DependencyProperty ViewCountProperty =
         DependencyProperty.Register(nameof(ViewCount), typeof(int), typeof(AdvertisementCardControl), new PropertyMetadata(0));
 
@@ -147,6 +150,12 @@ public partial class AdvertisementCardControl : UserControl
     {
         get => (AdvertisementStatus)GetValue(StatusProperty);
         set => SetValue(StatusProperty, value);
+    }
+
+    public ItemCondition Condition
+    {
+        get => (ItemCondition)GetValue(ConditionProperty);
+        set => SetValue(ConditionProperty, value);
     }
 
     public int ViewCount

@@ -1,0 +1,8 @@
+﻿Id;Имя;Email;Телефон;Роль;Заблокирован;Дата регистрации
+3;gleb;tiger091126@gmail.com;+375 33 644 19 69;User;False;15.05.2026 15:05
+7;qwerty;zivulkogleb@gmail.com;+375333333333;User;False;18.05.2026 03:41
+4;Влад;dfghj@mail.com;+375 336441969;User;False;16.05.2026 21:44
+6;Глеаб;ziogleb@gmail.com;+375336444444;User;False;18.05.2026 03:33
+5;Глеб Гэнг;zivulkog@gmail.com;+3753364143211;User;False;18.05.2026 03:14
+2;Тестовый пользователь;user@mail.com;+7 900 000-00-02;User;False;03.05.2026 00:21
+1;Администратор;admin@mail.com;+7 900 000-00-01;Admin;False;03.05.2026 00:21

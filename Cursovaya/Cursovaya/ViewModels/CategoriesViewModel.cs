@@ -7,17 +7,25 @@ namespace Cursovaya.ViewModels;
 public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
 {
     private readonly CategoryService _categoryService;
+    private readonly AuthService _authService;
     private readonly DialogService _dialogService;
+    private readonly Func<Task> _onChanged;
     private Category? _selectedCategory;
     private string _name = string.Empty;
     private string _description = string.Empty;
     private bool _isActive = true;
     private string _errorMessage = string.Empty;
 
-    public CategoriesViewModel(CategoryService categoryService, DialogService dialogService)
+    public CategoriesViewModel(
+        CategoryService categoryService,
+        AuthService authService,
+        DialogService dialogService,
+        Func<Task> onChanged)
     {
         _categoryService = categoryService;
+        _authService = authService;
         _dialogService = dialogService;
+        _onChanged = onChanged;
         AddCommand = new RelayCommand(async _ => await AddAsync());
         UpdateCommand = new RelayCommand(async _ => await UpdateAsync(), _ => SelectedCategory != null);
         DeleteCommand = new RelayCommand(async _ => await DeleteAsync(), _ => SelectedCategory != null);
@@ -94,7 +102,7 @@ public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
 
     private async Task AddAsync()
     {
-        var result = await _categoryService.AddAsync(Name, Description);
+        var result = await _categoryService.AddAsync(Name, Description, _authService.CurrentUser);
         await ProcessResultAsync(result);
     }
 
@@ -113,7 +121,7 @@ public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
             IsActive = IsActive
         };
 
-        var result = await _categoryService.UpdateAsync(category);
+        var result = await _categoryService.UpdateAsync(category, _authService.CurrentUser);
         await ProcessResultAsync(result);
     }
 
@@ -129,7 +137,7 @@ public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
             return;
         }
 
-        var result = await _categoryService.DeleteAsync(SelectedCategory);
+        var result = await _categoryService.DeleteAsync(SelectedCategory, _authService.CurrentUser);
         await ProcessResultAsync(result);
     }
 
@@ -144,6 +152,7 @@ public class CategoriesViewModel : ViewModelBase, IRefreshableViewModel
         ErrorMessage = string.Empty;
         ClearForm();
         await LoadAsync();
+        await _onChanged();
     }
 
     private void FillForm(Category? category)

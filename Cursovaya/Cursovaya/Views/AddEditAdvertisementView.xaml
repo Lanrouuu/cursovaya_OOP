@@ -37,7 +37,7 @@
                         <TextBox Text="{Binding ShortDescription, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBlock Text="{DynamicResource FullDescription}" Style="{StaticResource FieldLabelStyle}" Margin="4,12,4,6"/>
                         <TextBox Text="{Binding FullDescription, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource MultilineTextBoxStyle}"/>
+                                 Style="{StaticResource MultilineTextBoxStyle}" Height="128"/>
                         <TextBlock Text="{DynamicResource Price}" Style="{StaticResource FieldLabelStyle}" Margin="4,12,4,6"/>
                         <TextBox Text="{Binding PriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -48,7 +48,7 @@
                                   SelectedItem="{Binding SelectedCategory}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Name, Converter={StaticResource CategoryNameConverter}}"/>
+                                    <TextBlock Text="{Binding Name}"/>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -110,15 +110,23 @@
                                    Stretch="UniformToFill"/>
                         </Grid>
                     </Border>
-                    <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                        <Button Content="{DynamicResource ChooseImage}"
-                                Command="{Binding BrowseImageCommand}"
-                                HorizontalAlignment="Left"/>
+                    <StackPanel Grid.Column="1" Margin="48,0,-34,0" VerticalAlignment="Top">
                         <TextBlock Text="{Binding ImagePath}"
                                    Style="{StaticResource MutedTextStyle}"
                                    Margin="4,8,4,0"
                                    TextTrimming="CharacterEllipsis"
-                                   FontSize="13"/>
+                                   FontSize="13" Height="7" RenderTransformOrigin="0.5,0.5">
+                            <TextBlock.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleY="-1"/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                        <Button Content="{DynamicResource ChooseImage}"
+                                Command="{Binding BrowseImageCommand}" Width="215"/>
                     </StackPanel>
                 </Grid>
 

@@ -7,15 +7,23 @@ namespace Cursovaya.ViewModels;
 public class UsersManagementViewModel : ViewModelBase, IRefreshableViewModel
 {
     private readonly UserService _userService;
+    private readonly AuthService _authService;
     private readonly DialogService _dialogService;
+    private readonly Func<Task> _onChanged;
     private string _searchText = string.Empty;
     private User? _selectedUser;
     private List<User> _allUsers = new();
 
-    public UsersManagementViewModel(UserService userService, DialogService dialogService)
+    public UsersManagementViewModel(
+        UserService userService,
+        AuthService authService,
+        DialogService dialogService,
+        Func<Task> onChanged)
     {
         _userService = userService;
+        _authService = authService;
         _dialogService = dialogService;
+        _onChanged = onChanged;
         BlockCommand = new RelayCommand(async _ => await SetBlockedAsync(true), _ => SelectedUser != null);
         UnblockCommand = new RelayCommand(async _ => await SetBlockedAsync(false), _ => SelectedUser != null);
         RefreshCommand = new RelayCommand(async _ => await LoadAsync());
@@ -77,7 +85,7 @@ public class UsersManagementViewModel : ViewModelBase, IRefreshableViewModel
             return;
         }
 
-        var result = await _userService.SetBlockedAsync(SelectedUser, isBlocked);
+        var result = await _userService.SetBlockedAsync(SelectedUser, isBlocked, _authService.CurrentUser);
         if (!result.IsSuccess)
         {
             _dialogService.ShowError(result.ErrorMessage);
@@ -85,6 +93,7 @@ public class UsersManagementViewModel : ViewModelBase, IRefreshableViewModel
         }
 
         await LoadAsync();
+        await _onChanged();
     }
 
     private void ApplyFilter()

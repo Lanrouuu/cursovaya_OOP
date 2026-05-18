@@ -10,16 +10,12 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
     private readonly UserService _userService;
     private readonly AdvertisementService _advertisementService;
     private readonly FavoriteService _favoriteService;
-    private readonly ThemeService _themeService;
-    private readonly LocalizationService _localizationService;
     private readonly DialogService _dialogService;
     private readonly Func<Advertisement?, Task> _openEdit;
 
     private string _userName = string.Empty;
     private string _email = string.Empty;
     private string _phoneNumber = string.Empty;
-    private string _selectedTheme;
-    private OptionItem _selectedLanguage;
     private string _errorMessage = string.Empty;
     private string _currentPassword = string.Empty;
     private string _newPassword = string.Empty;
@@ -31,8 +27,6 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         UserService userService,
         AdvertisementService advertisementService,
         FavoriteService favoriteService,
-        ThemeService themeService,
-        LocalizationService localizationService,
         DialogService dialogService,
         Func<Advertisement?, Task> openEdit)
     {
@@ -40,18 +34,8 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
         _userService = userService;
         _advertisementService = advertisementService;
         _favoriteService = favoriteService;
-        _themeService = themeService;
-        _localizationService = localizationService;
         _dialogService = dialogService;
         _openEdit = openEdit;
-        _selectedTheme = _themeService.CurrentTheme;
-        Themes = new ObservableCollection<string>(_themeService.Themes);
-        Languages = new ObservableCollection<OptionItem>
-        {
-            new() { Title = "RU", Value = "ru-RU" },
-            new() { Title = "EN", Value = "en-US" }
-        };
-        _selectedLanguage = Languages.First(x => x.Value == _localizationService.CurrentLanguage);
 
         SaveProfileCommand = new RelayCommand(async _ => await SaveProfileAsync());
         ChangePasswordCommand = new RelayCommand(async _ => await ChangePasswordAsync());
@@ -61,8 +45,6 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
 
     public ObservableCollection<Advertisement> MyAdvertisements { get; } = new();
     public ObservableCollection<Advertisement> FavoriteAdvertisements { get; } = new();
-    public ObservableCollection<string> Themes { get; }
-    public ObservableCollection<OptionItem> Languages { get; }
 
     public string UserName
     {
@@ -80,30 +62,6 @@ public class ProfileViewModel : ViewModelBase, IRefreshableViewModel
     {
         get => _phoneNumber;
         set => SetProperty(ref _phoneNumber, value);
-    }
-
-    public string SelectedTheme
-    {
-        get => _selectedTheme;
-        set
-        {
-            if (SetProperty(ref _selectedTheme, value))
-            {
-                _themeService.ApplyTheme(value);
-            }
-        }
-    }
-
-    public OptionItem SelectedLanguage
-    {
-        get => _selectedLanguage;
-        set
-        {
-            if (SetProperty(ref _selectedLanguage, value))
-            {
-                _localizationService.ApplyLanguage(value.Value);
-            }
-        }
     }
 
     public string ErrorMessage

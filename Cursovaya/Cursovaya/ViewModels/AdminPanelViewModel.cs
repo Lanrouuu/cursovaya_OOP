@@ -31,13 +31,12 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         _exportService = exportService;
         _dialogService = dialogService;
 
-        UsersViewModel = new UsersManagementViewModel(userService, dialogService);
-        CategoriesViewModel = new CategoriesViewModel(categoryService, dialogService);
+        UsersViewModel = new UsersManagementViewModel(userService, authService, dialogService, LoadLogsAsync);
+        CategoriesViewModel = new CategoriesViewModel(categoryService, authService, dialogService, LoadLogsAsync);
         StatusValues = new ObservableCollection<AdvertisementStatus>(Enum.GetValues<AdvertisementStatus>());
 
         RefreshCommand = new RelayCommand(async _ => await LoadAsync());
         SetActiveCommand = new RelayCommand(async _ => await ChangeStatusAsync(AdvertisementStatus.Active), _ => SelectedAdvertisement != null);
-        HideCommand = new RelayCommand(async _ => await ChangeStatusAsync(AdvertisementStatus.Hidden), _ => SelectedAdvertisement != null);
         BlockCommand = new RelayCommand(async _ => await ChangeStatusAsync(AdvertisementStatus.Blocked), _ => SelectedAdvertisement != null);
         DeleteCommand = new RelayCommand(async _ => await DeleteAsync(), _ => SelectedAdvertisement != null);
         ApplyStatusFilterCommand = new RelayCommand(async _ => await LoadAdvertisementsAsync());
@@ -90,7 +89,6 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
 
     public RelayCommand RefreshCommand { get; }
     public RelayCommand SetActiveCommand { get; }
-    public RelayCommand HideCommand { get; }
     public RelayCommand BlockCommand { get; }
     public RelayCommand DeleteCommand { get; }
     public RelayCommand ApplyStatusFilterCommand { get; }
@@ -170,6 +168,7 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         }
 
         await LoadAdvertisementsAsync();
+        await LoadLogsAsync();
     }
 
     private async Task DeleteAsync()
@@ -192,6 +191,7 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
         }
 
         await LoadAdvertisementsAsync();
+        await LoadLogsAsync();
     }
 
     private async Task ClearFilterAsync()
@@ -223,7 +223,6 @@ public class AdminPanelViewModel : ViewModelBase, IRefreshableViewModel
     private void RaiseAdvertisementCommandStates()
     {
         SetActiveCommand.RaiseCanExecuteChanged();
-        HideCommand.RaiseCanExecuteChanged();
         BlockCommand.RaiseCanExecuteChanged();
         DeleteCommand.RaiseCanExecuteChanged();
     }

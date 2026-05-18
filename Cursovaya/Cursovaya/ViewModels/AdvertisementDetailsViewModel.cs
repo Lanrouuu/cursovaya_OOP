@@ -35,6 +35,12 @@ public class AdvertisementDetailsViewModel : ViewModelBase
 
     public Advertisement Advertisement { get; }
 
+    public string LocalizedTitle => Advertisement.Title;
+    public string LocalizedCity => Advertisement.City;
+    public string LocalizedFullDescription => Advertisement.FullDescription;
+    public string LocalizedSellerName => Advertisement.User?.UserName ?? "";
+    public string LocalizedCategoryName => Advertisement.Category?.Name ?? "";
+
     public ObservableCollection<Advertisement> SimilarAdvertisements { get; }
 
     public bool ShowContacts

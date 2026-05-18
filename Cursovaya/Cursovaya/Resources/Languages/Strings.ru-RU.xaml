@@ -17,11 +17,19 @@
     <sys:String x:Key="SearchFilters">Поиск и фильтры</sys:String>
     <sys:String x:Key="SearchQuery">Что ищем</sys:String>
     <sys:String x:Key="SearchPlaceholder">Название, описание, город или продавец</sys:String>
+    <sys:String x:Key="AdminUsersSearchPlaceholder">Имя, email или телефон</sys:String>
+    <sys:String x:Key="AdminAdsSearchPlaceholder">Название, город или продавец</sys:String>
+    <sys:String x:Key="AdminAdsStatusPlaceholder">Любой статус</sys:String>
+    <sys:String x:Key="CategoryNamePlaceholder">Например, Электроника</sys:String>
+    <sys:String x:Key="CategoryDescriptionPlaceholder">Кратко: что входит в категорию</sys:String>
+    <sys:String x:Key="CategoriesInput">Все категории</sys:String>
+    <sys:String x:Key="ConditionPlaceholder">Любое состояние</sys:String>
+    <sys:String x:Key="DateFromPlaceholder">С даты</sys:String>
     <sys:String x:Key="PriceFromPlaceholder">От 0</sys:String>
     <sys:String x:Key="PriceToPlaceholder">До 100000</sys:String>
     <sys:String x:Key="CityPlaceholder">Например, Москва</sys:String>
     <sys:String x:Key="UserNamePlaceholder">Иван Иванов</sys:String>
-    <sys:String x:Key="PhonePlaceholder">+7 900 000-00-00</sys:String>
+    <sys:String x:Key="PhonePlaceholder">+375336441969</sys:String>
     <sys:String x:Key="EmailPlaceholder">name@mail.com</sys:String>
     <sys:String x:Key="PasswordPlaceholder">Минимум 6 символов</sys:String>
     <sys:String x:Key="ConfirmPasswordPlaceholder">Повторите пароль</sys:String>
@@ -74,7 +82,7 @@
     <sys:String x:Key="ProfileSubtitle">Данные аккаунта, настройки интерфейса и список ваших объявлений</sys:String>
     <sys:String x:Key="ProfileUserBlock">Профиль пользователя</sys:String>
     <sys:String x:Key="InterfaceSettings">Настройки интерфейса</sys:String>
-    <sys:String x:Key="SettingsHint">Тема и язык меняются сразу, без перезапуска приложения.</sys:String>
+    <sys:String x:Key="SettingsHint">Язык меняется сразу, без перезапуска приложения.</sys:String>
     <sys:String x:Key="Activity">Активность</sys:String>
     <sys:String x:Key="ProfileAdsHint">Здесь отображаются объявления текущего пользователя. Из списка можно перейти к редактированию.</sys:String>
     <sys:String x:Key="LoginSubtitle">Войдите в аккаунт, чтобы управлять объявлениями</sys:String>
@@ -170,6 +178,12 @@
     <sys:String x:Key="ErrorRenewOwnAdsOnly">Можно продлить только своё объявление.</sys:String>
     <sys:String x:Key="ErrorOnlyAdminCanChangeAdStatus">Менять статус объявления может только администратор.</sys:String>
     <sys:String x:Key="LogAdvertisementStatusChanged">Статус объявления #{0} изменён на {1}.</sys:String>
+    <sys:String x:Key="LogAdvertisementDeleted">Объявление #{0} удалено администратором.</sys:String>
+    <sys:String x:Key="LogUserBlocked">Пользователь #{0} заблокирован.</sys:String>
+    <sys:String x:Key="LogUserUnblocked">Пользователь #{0} разблокирован.</sys:String>
+    <sys:String x:Key="LogCategoryAdded">Добавлена категория «{0}».</sys:String>
+    <sys:String x:Key="LogCategoryUpdated">Обновлена категория «{0}».</sys:String>
+    <sys:String x:Key="LogCategoryDeleted">Удалена категория «{0}».</sys:String>
     <sys:String x:Key="ErrorEnterAdvertisementTitle">Введите название объявления.</sys:String>
     <sys:String x:Key="ErrorAdvertisementTitleLength">Название не должно превышать 120 символов.</sys:String>
     <sys:String x:Key="ErrorEnterShortDescription">Введите краткое описание объявления.</sys:String>
@@ -199,6 +213,7 @@
     <sys:String x:Key="ErrorLoadMyAdvertisements">Не удалось загрузить личные объявления: {0}</sys:String>
     <sys:String x:Key="MessageProfileSaved">Профиль сохранён.</sys:String>
     <sys:String x:Key="MessagePasswordChanged">Пароль успешно изменён.</sys:String>
+    <sys:String x:Key="WarningEmailNotSent">Аккаунт создан, но письмо не отправлено.&#x0a;&#x0a;Проверьте Smtp в appsettings.json (пароль приложения Gmail, From = тот же ящик).&#x0a;&#x0a;Ошибка SMTP: {0}</sys:String>
     <sys:String x:Key="MessageAdvertisementRenewed">Объявление продлено на 30 дней.</sys:String>
     <sys:String x:Key="ErrorLoadUsers">Не удалось загрузить пользователей: {0}</sys:String>
     <sys:String x:Key="ConfirmDeleteCategory">Удалить выбранную категорию?</sys:String>

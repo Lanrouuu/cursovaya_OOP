@@ -74,7 +74,7 @@
                         MinHeight="480"
                         Margin="8">
                     <StackPanel>
-                        <TextBlock Text="{Binding Advertisement.Title, Mode=OneWay}"
+                        <TextBlock Text="{Binding LocalizedTitle, Mode=OneWay}"
                                    FontSize="30"
                                    FontWeight="Bold"
                                    Margin="0,0,0,6"/>
@@ -95,10 +95,10 @@
 
                         <WrapPanel Margin="0,0,0,20">
                             <Border Style="{StaticResource TagStyle}">
-                                <TextBlock Text="{Binding Advertisement.Category.Name, Converter={StaticResource CategoryNameConverter}, Mode=OneWay}" FontSize="13"/>
+                                <TextBlock Text="{Binding LocalizedCategoryName, Mode=OneWay}" FontSize="13"/>
                             </Border>
                             <Border Style="{StaticResource TagStyle}">
-                                <TextBlock Text="{Binding Advertisement.City, Mode=OneWay}" FontSize="13"/>
+                                <TextBlock Text="{Binding LocalizedCity, Mode=OneWay}" FontSize="13"/>
                             </Border>
                             <Border Style="{StaticResource TagStyle}">
                                 <TextBlock Text="{Binding Advertisement.CreatedAt, StringFormat={}{0:dd.MM.yyyy}, Mode=OneWay}" FontSize="13"/>
@@ -129,7 +129,7 @@
                                    FontWeight="Bold"
                                    FontSize="18"
                                    Margin="0,14,0,10"/>
-                        <TextBlock Text="{Binding Advertisement.FullDescription, Mode=OneWay}"
+                        <TextBlock Text="{Binding LocalizedFullDescription, Mode=OneWay}"
                                    FontSize="15"
                                    LineHeight="24"
                                    Margin="0,0,0,20"/>
@@ -149,7 +149,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Advertisement.User.UserName, Mode=OneWay}"
+                                    <TextBlock Text="{Binding LocalizedSellerName, Mode=OneWay}"
                                                FontWeight="SemiBold"
                                                FontSize="16"
                                                Foreground="{DynamicResource AccentBrush}"/>
@@ -228,7 +228,7 @@
                                                            Stretch="UniformToFill"/>
                                                 </Grid>
                                             </Border>
-                                            <TextBlock Text="{Binding Title}"
+                                            <TextBlock Text="{Binding LocalizedTitle}"
                                                        FontWeight="SemiBold"
                                                        FontSize="14"
                                                        TextTrimming="CharacterEllipsis"
@@ -248,7 +248,7 @@
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
-                                            <TextBlock Text="{Binding City}"
+                                            <TextBlock Text="{Binding LocalizedCity}"
                                                        Style="{StaticResource MutedTextStyle}"
                                                        FontSize="12"
                                                        Margin="0,4,0,0"

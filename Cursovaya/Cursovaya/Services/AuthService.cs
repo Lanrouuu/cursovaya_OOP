@@ -93,11 +93,21 @@ public class AuthService
             return ServiceResult<User>.Fail(LocalizedStrings.Get("ErrorCreateUserFailed"));
         }
 
-        _ = _emailService.SendWelcomeAsync(user.Email, user.UserName);
+        string? warningMessage = null;
+        if (_emailService.IsConfigured)
+        {
+            var emailSent = await _emailService.SendWelcomeAsync(user.Email, user.UserName);
+            if (!emailSent)
+            {
+                warningMessage = LocalizedStrings.Format(
+                    "WarningEmailNotSent",
+                    _emailService.LastError ?? "неизвестная ошибка");
+            }
+        }
 
         CurrentUser = user;
         CurrentUserChanged?.Invoke();
-        return ServiceResult<User>.Success(user);
+        return ServiceResult<User>.Success(user, warningMessage);
     }
 
     public void Logout()

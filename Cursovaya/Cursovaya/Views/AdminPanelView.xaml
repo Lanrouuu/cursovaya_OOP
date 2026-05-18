@@ -19,49 +19,70 @@
         <TabControl Grid.Row="1">
             <TabItem Header="{DynamicResource Users}">
                 <DockPanel Margin="8">
-                    <Button Content="{DynamicResource ExportUsers}"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Command="{Binding DataContext.ExportUsersCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            DockPanel.Dock="Top"
-                            HorizontalAlignment="Right"
-                            Margin="0,0,0,10"/>
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox Width="260"
+                                     Style="{StaticResource WatermarkTextBoxStyle}"
+                                     Tag="{DynamicResource AdminUsersSearchPlaceholder}"
+                                     Text="{Binding UsersViewModel.SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="{DynamicResource Block}"
+                                    Command="{Binding UsersViewModel.BlockCommand}"/>
+                            <Button Content="{DynamicResource Activate}"
+                                    Command="{Binding UsersViewModel.UnblockCommand}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Content="{DynamicResource ExportUsers}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding ExportUsersCommand}"
+                                VerticalAlignment="Center"/>
+                    </Grid>
                     <views:UsersManagementView DataContext="{Binding UsersViewModel}"/>
                 </DockPanel>
             </TabItem>
 
             <TabItem Header="{DynamicResource Advertisements}">
                 <DockPanel Margin="8">
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,12">
-                        <TextBox Width="240"
-                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="{DynamicResource Search}"/>
-                        <ComboBox Width="170"
-                                  ItemsSource="{Binding StatusValues}"
-                                  SelectedItem="{Binding SelectedStatus}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumToStringConverter}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button Content="{DynamicResource Clear}"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Command="{Binding ClearFilterCommand}"/>
-                        <Button Content="{DynamicResource Activate}" Command="{Binding SetActiveCommand}"/>
-                        <Button Content="{DynamicResource Hide}"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Command="{Binding HideCommand}"/>
-                        <Button Content="{DynamicResource Block}"
-                                Style="{StaticResource DangerButtonStyle}"
-                                Command="{Binding BlockCommand}"/>
-                        <Button Content="{DynamicResource Delete}"
-                                Style="{StaticResource DangerButtonStyle}"
-                                Command="{Binding DeleteCommand}"/>
-                        <Button Content="{DynamicResource ExportAdvertisements}"
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox Width="260"
+                                     Style="{StaticResource WatermarkTextBoxStyle}"
+                                     Tag="{DynamicResource AdminAdsSearchPlaceholder}"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ComboBox Width="170"
+                                      ItemsSource="{Binding StatusValues}"
+                                      SelectedItem="{Binding SelectedStatus}"
+                                      ToolTip="{DynamicResource AdminAdsStatusPlaceholder}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumToStringConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Content="{DynamicResource Clear}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding ClearFilterCommand}"/>
+                            <Button Content="{DynamicResource Activate}" Command="{Binding SetActiveCommand}"/>
+                            <Button Content="{DynamicResource Block}"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    Command="{Binding BlockCommand}"/>
+                            <Button Content="{DynamicResource Delete}"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    Command="{Binding DeleteCommand}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Content="{DynamicResource ExportAdvertisements}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Command="{Binding ExportAdvertisementsCommand}"
-                                Margin="16,0,0,0"/>
-                    </StackPanel>
+                                VerticalAlignment="Center"/>
+                    </Grid>
 
                     <DataGrid ItemsSource="{Binding Advertisements}"
                               SelectedItem="{Binding SelectedAdvertisement}">
@@ -69,7 +90,7 @@
                             <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="60"/>
                             <DataGridTextColumn Header="{DynamicResource Title}" Binding="{Binding Title}" Width="2*"/>
                             <DataGridTextColumn Header="{DynamicResource Price}" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="*"/>
-                            <DataGridTextColumn Header="{DynamicResource Category}" Binding="{Binding Category.Name, Converter={StaticResource CategoryNameConverter}}" Width="*"/>
+                            <DataGridTextColumn Header="{DynamicResource Category}" Binding="{Binding Category.Name}" Width="*"/>
                             <DataGridTextColumn Header="{DynamicResource Seller}" Binding="{Binding User.UserName}" Width="*"/>
                             <DataGridTextColumn Header="{DynamicResource City}" Binding="{Binding City}" Width="*"/>
                             <DataGridTextColumn Header="{DynamicResource Status}" Binding="{Binding Status, Converter={StaticResource EnumToStringConverter}}" Width="*"/>
